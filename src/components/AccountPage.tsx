@@ -245,13 +245,18 @@ const AccountPage = ({ onLogout }: AccountPageProps) => {
   }
 
   return (
-    <div className="p-4 pb-20">
-      <div className="max-w-md mx-auto">
-        <h2 className="text-2xl font-bold mb-6 text-center">My Account</h2>
-        
+    <div className="p-4 pb-20 min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
+      <div className="max-w-md mx-auto shadow-xl rounded-2xl bg-white/90 p-6">
+        {/* User Avatar */}
+        <div className="flex flex-col items-center mb-4">
+          <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center shadow-md mb-2">
+            <User className="h-12 w-12 text-blue-400" />
+          </div>
+          <h2 className="text-2xl font-bold mb-1 text-center">My Account</h2>
+        </div>
         {/* User Type Badge */}
         <div className="mb-6 text-center">
-          <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+          <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium shadow-sm ${
             userInfo.type === 'admin' 
               ? 'bg-purple-100 text-purple-800' 
               : 'bg-blue-100 text-blue-800'
@@ -259,17 +264,19 @@ const AccountPage = ({ onLogout }: AccountPageProps) => {
             {userInfo.type === 'admin' ? 'Administrator' : 'User'}
           </span>
         </div>
-        
-        {renderEditableField('username', 'Username', <User className="h-5 w-5" />)}
-        {renderEditableField('phone_number', 'Phone Number', <Phone className="h-5 w-5" />, 'tel')}
-        {renderEditableField('email', 'Email Address', <Mail className="h-5 w-5" />, 'email')}
-        
-        <Card className="mt-8 border-red-200 bg-red-50">
+        <div className="space-y-6">
+          {renderEditableField('username', 'Username', <User className="h-5 w-5" />)}
+          <hr className="border-t border-gray-200" />
+          {renderEditableField('phone_number', 'Phone Number', <Phone className="h-5 w-5" />, 'tel')}
+          <hr className="border-t border-gray-200" />
+          {renderEditableField('email', 'Email Address', <Mail className="h-5 w-5" />, 'email')}
+        </div>
+        <Card className="mt-8 border-red-200 bg-red-50 shadow-none">
           <CardContent className="pt-6">
             <Button
               onClick={handleLogout}
               variant="outline"
-              className="w-full border-red-300 text-red-700 hover:bg-red-100 hover:text-red-800"
+              className="w-full border-red-300 text-red-700 hover:bg-red-100 hover:text-red-800 transition-colors"
             >
               <LogOut className="h-4 w-4 mr-2" />
               Log Out

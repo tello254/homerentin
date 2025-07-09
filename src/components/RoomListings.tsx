@@ -176,36 +176,31 @@ const RoomListings = ({ filters, searchQuery = '', onBookmark, customRooms, book
     // Use custom rooms (for bookmarks)
     rooms = customRooms;
   } else {
-    // Use Supabase data, fallback to placeholder data if there's an error
+    // Use Supabase data only
     try {
       const supabaseData = useRooms({
         roomType: filters.roomType !== 'all' ? filters.roomType : undefined,
         priceRange: filters.priceRange !== 'all' ? filters.priceRange : undefined,
         area: filters.area !== 'all' ? filters.area : undefined
       });
-      
       rooms = supabaseData.rooms;
       loading = supabaseData.loading;
       error = supabaseData.error;
     } catch (err) {
-      console.log('Using placeholder data due to Supabase connection issue');
-      rooms = placeholderRooms;
-      error = null;
-    }
-
-    // If there's an error or no rooms from database, use placeholder data
-    if (error || rooms.length === 0) {
-      rooms = placeholderRooms;
-      error = null;
+      rooms = [];
+      error = 'Failed to fetch rooms';
     }
   }
 
+  // Sort rooms by position
+  const sortedRooms = [...rooms].sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+
   // Filter rooms by search query (title search)
   const filteredRooms = searchQuery.trim() 
-    ? rooms.filter(room => 
+    ? sortedRooms.filter(room => 
         room.title.toLowerCase().includes(searchQuery.toLowerCase())
       )
-    : rooms;
+    : sortedRooms;
 
   const handleRoomClick = (room: Room) => {
     setSelectedRoom(room);
@@ -254,13 +249,13 @@ const RoomListings = ({ filters, searchQuery = '', onBookmark, customRooms, book
     );
   }
 
-  // Show empty state (this shouldn't happen now with placeholder data)
+  // Show empty state if no rooms match filters
   if (filteredRooms.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 px-4">
         <div className="text-gray-400 text-6xl mb-4">🏠</div>
         <h3 className="text-lg font-medium text-gray-900 mb-2">No rooms found</h3>
-        <p className="text-gray-500">Try adjusting your filters or search terms</p>
+        <p className="text-gray-500">No rooms match your filters. Try adjusting your filters or check back later.</p>
       </div>
     );
   }
@@ -275,7 +270,7 @@ const RoomListings = ({ filters, searchQuery = '', onBookmark, customRooms, book
           </p>
         </div>
       )}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-1 sm:px-2 md:px-4 max-w-full overflow-x-hidden">
         {filteredRooms.map((room) => (
           <RoomCard 
             key={room.id} 

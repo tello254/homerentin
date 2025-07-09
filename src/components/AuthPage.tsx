@@ -308,6 +308,27 @@ const AuthPage = ({ onLogin }: AuthPageProps) => {
             )}
           </Button>
         </div>
+        {/* Forgot Password link below password input, aligned right */}
+        <div className="w-full flex justify-end">
+          <button
+            type="button"
+            onClick={() => setMode('forgot-step1')}
+            className="text-xs text-blue-600 hover:text-blue-800 font-medium mt-1 mb-1 text-right"
+          >
+            Forgot Password?
+          </button>
+        </div>
+        {/* Sign up sentence below forgot password */}
+        <span className="text-xs text-gray-600 block mb-2">
+          Don't have an account?{' '}
+          <button
+            type="button"
+            onClick={() => setMode('signup')}
+            className="text-blue-600 hover:text-blue-800 font-medium"
+          >
+            Sign up
+          </button>
+        </span>
       </div>
       
       {showAdminCheckbox && (
@@ -325,26 +346,6 @@ const AuthPage = ({ onLogin }: AuthPageProps) => {
           </Label>
         </div>
       )}
-      
-      <div className="flex justify-between items-center mb-2">
-        <button
-          type="button"
-          onClick={() => setMode('forgot-step1')}
-          className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-        >
-          Forgot Password?
-        </button>
-        <span className="text-sm text-gray-600">
-          Don't have an account?{' '}
-          <button
-            type="button"
-            onClick={() => setMode('signup')}
-            className="text-blue-600 hover:text-blue-800 font-medium"
-          >
-            Sign up
-          </button>
-        </span>
-      </div>
       
       <Button
         type="submit"
@@ -648,7 +649,10 @@ const AuthPage = ({ onLogin }: AuthPageProps) => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4" style={{ background: '#0a2240' }}>
+    <div
+      className="min-h-screen min-w-screen w-screen h-screen flex flex-col items-center justify-center p-4 overflow-x-hidden"
+      style={{ background: '#0a2240', width: '100vw', height: '100vh', overflowX: 'hidden', position: 'relative' }}
+    >
       <img src="/newlogo-homerentinn.png" alt="HomeRentInn Logo" className="w-44 h-auto mb-6 mx-auto" />
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
@@ -674,16 +678,21 @@ const AuthPage = ({ onLogin }: AuthPageProps) => {
           onClose={handleWelcomeOk}
         />
       )}
-      <footer className="mt-8 w-full flex flex-row justify-between items-start text-xs text-gray-400 px-2" style={{lineHeight: '1.1', minHeight: '60px'}}>
-        <div className="flex items-center h-full whitespace-nowrap" style={{minHeight: '60px'}}>
-          © 2025 HomeRentInn. All rights reserved.
+      <footer
+        className="mt-8 w-full px-2 text-xs text-gray-400"
+      >
+        <div className="flex flex-col md:flex-row md:justify-between md:items-start w-full max-w-3xl mx-auto gap-2 md:gap-0">
+          <div className="flex flex-col items-start md:items-start whitespace-nowrap mb-2 md:mb-0">
+            <span>© 2025 Homerentin.</span>
+            <span>All rights reserved.</span>
         </div>
-        <div className="flex flex-col items-end gap-0.5">
+          <div className="flex flex-col md:flex-row md:flex-wrap md:items-center gap-0.5 md:gap-x-6 md:gap-y-0 items-start md:items-center">
           <span>Email: <a href="mailto:support.homerentin@gmail.com" className="text-blue-600 hover:underline">support.homerentin@gmail.com</a></span>
           <span>Phone/WhatsApp: <a href="tel:+254756600218" className="text-blue-600 hover:underline">+254 756 600 218</a></span>
           <span>Telegram: <a href="https://t.me/homerentin" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">@homerentin</a></span>
           <span>LinkedIn: <span className="text-gray-600">support@homerentin.com</span></span>
           <span>Address: <span className="text-gray-600">Kisii, Kenya</span></span>
+          </div>
         </div>
       </footer>
     </div>

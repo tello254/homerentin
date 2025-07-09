@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { roomsApi, storageApi, type Room } from '@/lib/supabase';
 import { Switch } from '@/components/ui/switch';
 import { Select } from '@/components/ui/select';
-import { Trash2, Plus, Upload, X } from 'lucide-react';
+import { Trash2, Plus, Upload, X, Camera } from 'lucide-react';
 
 interface RoomEditModalProps {
   room: Room | null;
@@ -46,6 +46,11 @@ const RoomEditModal = ({ room, isOpen, onClose, onSave, isCreateMode }: RoomEdit
   const [form, setForm] = useState<Partial<Room>>(defaultRoom);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Camera capture state
+  const [cameraPreview, setCameraPreview] = useState<string | null>(null);
+  const [cameraFile, setCameraFile] = useState<File | null>(null);
+  // Ref for hidden camera input
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (room && !isCreateMode) {
@@ -75,8 +80,47 @@ const RoomEditModal = ({ room, isOpen, onClose, onSave, isCreateMode }: RoomEdit
     }
   };
 
+  // Camera capture handler
+  const handleCameraCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setCameraPreview(reader.result as string);
+      setCameraFile(file);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSaveCameraImage = async () => {
+    if (!cameraFile) return;
+    setUploading(true);
+    setError(null);
+    try {
+      const { url, error } = await storageApi.uploadImage(cameraFile);
+      if (error) throw error;
+      setForm((prev) => ({ ...prev, images: [...(prev.images || []), url] }));
+      setCameraPreview(null);
+      setCameraFile(null);
+    } catch (err) {
+      setError('Failed to save camera image');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRetakeCameraImage = () => {
+    setCameraPreview(null);
+    setCameraFile(null);
+  };
+
   const handleImageDelete = (url: string) => {
     setForm((prev) => ({ ...prev, images: (prev.images || []).filter((img) => img !== url) }));
+  };
+
+  // Handler to trigger camera input
+  const handleOpenCamera = () => {
+    cameraInputRef.current?.click();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -147,7 +191,7 @@ const RoomEditModal = ({ room, isOpen, onClose, onSave, isCreateMode }: RoomEdit
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl w-full mx-4 p-0 overflow-hidden max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl w-full p-0 overflow-hidden max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{isCreateMode ? 'Add New Room' : 'Edit Room'}</DialogTitle>
         </DialogHeader>
@@ -298,6 +342,40 @@ const RoomEditModal = ({ room, isOpen, onClose, onSave, isCreateMode }: RoomEdit
             </div>
             {uploading && <div className="text-blue-600 text-xs">Uploading...</div>}
             {error && <div className="text-red-600 text-xs">{error}</div>}
+          </div>
+
+          {/* Camera Capture Section */}
+          <div className="col-span-1 md:col-span-2">
+            {!cameraPreview ? (
+              <>
+                <Button type="button" onClick={handleOpenCamera} className="mb-2 flex items-center justify-center" disabled={uploading} title="Take Photo">
+                  <Camera className="w-6 h-6" />
+                </Button>
+                <input
+                  ref={cameraInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleCameraCapture}
+                  className="hidden"
+                  disabled={uploading}
+                  title="Open camera to take a photo"
+                  placeholder="Take a photo"
+                />
+              </>
+            ) : (
+              <div className="flex flex-col items-center gap-2 mt-2">
+                <img src={cameraPreview} alt="Camera Preview" className="w-40 h-40 object-cover rounded-lg border" />
+                <div className="flex gap-2">
+                  <Button type="button" onClick={handleSaveCameraImage} disabled={uploading} className="bg-green-600 hover:bg-green-700 text-white">
+                    Save Image
+                  </Button>
+                  <Button type="button" onClick={handleRetakeCameraImage} variant="outline" disabled={uploading}>
+                    Retake Image
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex justify-end gap-2 pt-4">

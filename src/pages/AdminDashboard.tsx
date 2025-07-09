@@ -9,6 +9,7 @@ import { roomsApi } from '@/lib/supabase';
 import type { Room } from '@/lib/supabase';
 import RoomEditModal from '@/components/RoomEditModal';
 import { useNavigate } from 'react-router-dom';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -37,11 +38,31 @@ const AdminDashboard = ({ onLogout, onViewModeChange }: AdminDashboardProps) => 
       setLoading(true);
       const { data, error } = await roomsApi.getRooms();
       if (error) throw error;
-      setRooms(data || []);
+      // Sort by position if available
+      const sorted = (data || []).sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+      setRooms(sorted);
     } catch (err) {
       console.error('Failed to fetch rooms:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Handle drag end
+  const handleDragEnd = async (result: DropResult) => {
+    if (!result.destination) return;
+    const reordered = Array.from(rooms);
+    const [removed] = reordered.splice(result.source.index, 1);
+    reordered.splice(result.destination.index, 0, removed);
+    // Update positions in local state
+    setRooms(reordered.map((room, idx) => ({ ...room, position: idx + 1 })));
+    // Persist new order to backend
+    for (let i = 0; i < reordered.length; i++) {
+      try {
+        await roomsApi.updateRoom(reordered[i].id, { position: i + 1 });
+      } catch (err) {
+        console.error('Failed to update room position:', err);
+      }
     }
   };
 
@@ -134,25 +155,25 @@ const AdminDashboard = ({ onLogout, onViewModeChange }: AdminDashboardProps) => 
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 overflow-x-hidden max-w-full">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div>
+          <div className="flex flex-col sm:flex-row justify-between items-center py-4">
+            <div className="mb-4 sm:mb-0">
               <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
               <p className="text-gray-600">Manage your room listings</p>
             </div>
-            <div className="flex items-center gap-4">
-              <Button onClick={handleViewAsUser} variant="outline" className="border-gray-300">
+            <div className="flex flex-col gap-2 w-full sm:w-auto sm:flex-row sm:items-center sm:gap-4 max-w-xs sm:max-w-none">
+              <Button onClick={handleViewAsUser} variant="outline" className="border-gray-300 w-full sm:w-auto">
                 <Users className="w-4 h-4 mr-2" />
                 View as User
               </Button>
-              <Button onClick={handleCreateRoom} className="bg-blue-600 hover:bg-blue-700">
+              <Button onClick={handleCreateRoom} className="bg-blue-600 hover:bg-blue-700 w-full sm:w-auto">
                 <Plus className="w-4 h-4 mr-2" />
                 Add New Room
               </Button>
-              <Button onClick={onLogout} variant="outline">
+              <Button onClick={onLogout} variant="outline" className="w-full sm:w-auto">
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout
               </Button>
@@ -285,74 +306,107 @@ const AdminDashboard = ({ onLogout, onViewModeChange }: AdminDashboardProps) => 
         )}
 
         {/* Rooms Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredRooms.map((room) => (
-            <Card 
-              key={room.id} 
-              className="hover:shadow-lg transition-shadow cursor-pointer"
-              onClick={() => handleEditRoom(room)}
-            >
-              <CardHeader className="pb-3">
-                <div className="flex justify-between items-start">
-                  <CardTitle className="text-lg">{room.title}</CardTitle>
-                  <div className="flex gap-1">
-                    <Badge className={getStatusColor(room.status)}>
-                      {room.status}
-                    </Badge>
-                    <Badge className={getRoomTypeColor(room.room_type)}>
-                      {room.room_type}
-                    </Badge>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Price:</span>
-                  <span className="font-semibold text-green-600">
-                    KES {room.price.toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Location:</span>
-                  <span className="text-sm">{room.location}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Landlord:</span>
-                  <span className="text-sm">{room.landlord_phone || 'Not set'}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  {room.verification && (
-                    <Badge variant="secondary" className="bg-blue-500 text-white text-xs">
-                      Verified
-                    </Badge>
-                  )}
-                  {room.wifi && (
-                    <Badge variant="outline" className="text-xs">WiFi</Badge>
-                  )}
-                </div>
-                
-                {/* Action Buttons */}
-                <div className="flex gap-2 pt-2" onClick={(e) => e.stopPropagation()}>
-                  <Button
-                    onClick={() => handleEditRoom(room)}
-                    size="sm"
-                    className="flex-1"
-                  >
-                    <Edit className="w-4 h-4 mr-1" />
-                    Edit
-                  </Button>
-                  <Button
-                    onClick={() => handleDeleteRoom(room.id)}
-                    size="sm"
-                    variant="destructive"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="rooms-droppable" direction="vertical">
+            {(provided) => (
+              <div
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-1 sm:px-2 md:px-4 max-w-full overflow-x-hidden"
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+              >
+                {filteredRooms.map((room, index) => (
+                  <Draggable key={room.id} draggableId={room.id} index={index}>
+                    {(dragProvided, dragSnapshot) => (
+                      <div
+                        ref={dragProvided.innerRef}
+                        {...dragProvided.draggableProps}
+                        {...dragProvided.dragHandleProps}
+                        style={{
+                          ...dragProvided.draggableProps.style,
+                          boxShadow: dragSnapshot.isDragging ? '0 4px 16px rgba(0,0,0,0.15)' : undefined,
+                        }}
+                      >
+                        <Card 
+                          className="hover:shadow-lg transition-shadow cursor-pointer w-full"
+                          onClick={() => handleEditRoom(room)}
+                        >
+                          {/* Room Image */}
+                          <div className="w-full h-40 bg-gray-100 flex items-center justify-center overflow-hidden rounded-t-lg">
+                            <img
+                              src={room.images && room.images.length > 0 ? room.images[0] : '/placeholder.svg'}
+                              alt={room.title}
+                              className="w-full h-full object-cover"
+                              onError={(e) => { e.currentTarget.src = '/placeholder.svg'; }}
+                            />
+                          </div>
+                          <CardHeader className="pb-3">
+                            <div className="flex justify-between items-start">
+                              <CardTitle className="text-lg">{room.title}</CardTitle>
+                              <div className="flex gap-1">
+                                <Badge className={getStatusColor(room.status)}>
+                                  {room.status}
+                                </Badge>
+                                <Badge className={getRoomTypeColor(room.room_type)}>
+                                  {room.room_type}
+                                </Badge>
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent className="space-y-3">
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600">Price:</span>
+                              <span className="font-semibold text-green-600">
+                                KES {room.price.toLocaleString()}
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600">Location:</span>
+                              <span className="text-sm">{room.location}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-gray-600">Landlord:</span>
+                              <span className="text-sm">{room.landlord_phone || 'Not set'}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {room.verification && (
+                                <Badge variant="secondary" className="bg-blue-500 text-white text-xs">
+                                  Verified
+                                </Badge>
+                              )}
+                              {room.wifi && (
+                                <Badge variant="outline" className="text-xs">WiFi</Badge>
+                              )}
+                            </div>
+                            
+                            {/* Action Buttons */}
+                            <div className="flex gap-2 pt-2" onClick={(e) => e.stopPropagation()}>
+                              <Button
+                                onClick={() => handleEditRoom(room)}
+                                size="sm"
+                                className="flex-1"
+                              >
+                                <Edit className="w-4 h-4 mr-1" />
+                                Edit
+                              </Button>
+                              <Button
+                                onClick={() => handleDeleteRoom(room.id)}
+                                size="sm"
+                                variant="destructive"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
 
         {/* Empty State */}
         {filteredRooms.length === 0 && searchQuery.trim() && (

@@ -2,6 +2,11 @@
 import { useState } from 'react';
 
 interface FilterTabsProps {
+  filters: {
+    roomType: string;
+    area: string;
+    priceRange: string;
+  };
   onFilterChange: (filters: {
     roomType: string;
     area: string;
@@ -9,12 +14,7 @@ interface FilterTabsProps {
   }) => void;
 }
 
-const FilterTabs = ({ onFilterChange }: FilterTabsProps) => {
-  const [filters, setFilters] = useState({
-    roomType: 'all',
-    area: 'all',
-    priceRange: 'all'
-  });
+const FilterTabs = ({ filters, onFilterChange }: FilterTabsProps) => {
 
   const roomTypes = ['All', 'Bedsitter', 'Single', 'Apartment'];
   const areas = ['All', 'Jogoo', 'Mwembe', 'Town', 'Campus'];
@@ -22,7 +22,6 @@ const FilterTabs = ({ onFilterChange }: FilterTabsProps) => {
 
   const updateFilter = (key: string, value: string) => {
     const newFilters = { ...filters, [key]: value.toLowerCase() };
-    setFilters(newFilters);
     onFilterChange(newFilters);
   };
 

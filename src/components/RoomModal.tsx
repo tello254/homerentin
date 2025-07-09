@@ -12,16 +12,19 @@ interface RoomModalProps {
 
 const RoomModal = ({ room, isOpen, onClose }: RoomModalProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [imageLoading, setImageLoading] = useState(false);
 
   if (!room) return null;
 
   const nextImage = () => {
+    setImageLoading(true);
     setCurrentImageIndex((prev) => 
       prev === room.images.length - 1 ? 0 : prev + 1
     );
   };
 
   const prevImage = () => {
+    setImageLoading(true);
     setCurrentImageIndex((prev) => 
       prev === 0 ? room.images.length - 1 : prev - 1
     );
@@ -60,33 +63,43 @@ const RoomModal = ({ room, isOpen, onClose }: RoomModalProps) => {
   };
 
   const handleContact = () => {
-    // For now, we'll show a placeholder contact
-    alert('Contact information will be available soon!');
+    // Use the room's landlord phone if available, otherwise fallback
+    const phone = room.landlord_phone || '+254756600218';
+    window.location.href = `tel:${phone}`;
   };
 
   const handleWhatsApp = () => {
-    const message = `Hi, I'm interested in the ${room.room_type} at ${room.location} for KES ${room.price.toLocaleString()}`;
-    // For now, we'll use a placeholder number
-    window.open(`https://wa.me/254700000000?text=${encodeURIComponent(message)}`, '_blank');
+    const message = `Hi There!!, i am interested in the house id \"${room.room_id}\" is can you please help me get it...`;
+    window.open(`https://wa.me/254703209997?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md w-full mx-4 p-0 overflow-hidden max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-md w-full p-0 overflow-hidden max-h-[90vh] overflow-y-auto">
         <DialogHeader className="sr-only">
           <DialogTitle>{room.title}</DialogTitle>
         </DialogHeader>
         
         {/* Image Carousel */}
         <div className="relative">
-          <img
-            src={room.images && room.images.length > 0 ? room.images[currentImageIndex] : '/placeholder.svg'}
-            alt={room.title}
-            className="w-full h-64 object-cover"
-            onError={(e) => {
-              e.currentTarget.src = '/placeholder.svg';
-            }}
-          />
+          <div className="w-full h-64 flex items-center justify-center relative">
+            <img
+              src={room.images && room.images.length > 0 ? room.images[currentImageIndex] : '/placeholder.svg'}
+              alt={room.title}
+              className={`w-full h-64 object-cover transition-all duration-300 ${imageLoading ? 'blur-md scale-105' : ''}`}
+              onLoad={() => setImageLoading(false)}
+              onError={(e) => {
+                e.currentTarget.src = '/placeholder.svg';
+                setImageLoading(false);
+              }}
+              style={{ display: imageLoading ? 'block' : 'block' }}
+            />
+            {imageLoading && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+              </div>
+            )}
+          </div>
           
           {room.images && room.images.length > 1 && (
             <>

@@ -87,12 +87,26 @@ export const roomsApi = {
       query = query.eq('verification', filters.verification)
     }
 
+    if (filters?.area && filters.area !== 'all') {
+      // Case-insensitive partial match for area/location
+      query = query.ilike('location', `%${filters.area}%`);
+    }
+
     if (filters?.priceRange && filters.priceRange !== 'all') {
-      const [min, max] = filters.priceRange.split('-').map(Number)
-      if (max) {
-        query = query.gte('price', min).lte('price', max)
+      // Accepts formats like '2K-4K', '8K+', etc.
+      let min = 0, max = undefined;
+      const range = filters.priceRange.toUpperCase().replace('K', '000').replace('+', '');
+      if (range.includes('-')) {
+        const [minStr, maxStr] = range.split('-');
+        min = parseInt(minStr);
+        max = parseInt(maxStr);
       } else {
-        query = query.gte('price', min)
+        min = parseInt(range);
+      }
+      if (min && max) {
+        query = query.gte('price', min).lte('price', max);
+      } else if (min) {
+        query = query.gte('price', min);
       }
     }
 

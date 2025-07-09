@@ -52,8 +52,8 @@ const RoomCard = ({ room, onClick, onBookmark, onImageClick, isBookmarked, showB
 
   const handleWhatsApp = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const message = `Hi, I'm interested in the ${room.room_type} at ${room.location} for KES ${room.price.toLocaleString()}`;
-    window.open(`https://wa.me/254756600218?text=${encodeURIComponent(message)}`, '_blank');
+    const message = `Hi There!!, i am interested in the house id \"${room.room_id}\" is can you please help me get it...`;
+    window.open(`https://wa.me/254703209997?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   const handleFullInfo = (e: React.MouseEvent) => {
@@ -77,7 +77,7 @@ const RoomCard = ({ room, onClick, onBookmark, onImageClick, isBookmarked, showB
 
   return (
     <div 
-      className="bg-white rounded-lg shadow-md overflow-hidden mb-4 mx-4 cursor-pointer hover:shadow-lg transition-shadow"
+      className="bg-white rounded-lg shadow-md overflow-hidden mb-4 w-full cursor-pointer hover:shadow-lg transition-shadow"
     >
       <div className="relative">
         <img
