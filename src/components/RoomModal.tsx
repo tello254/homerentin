@@ -69,7 +69,7 @@ const RoomModal = ({ room, isOpen, onClose }: RoomModalProps) => {
   };
 
   const handleWhatsApp = () => {
-    const message = `Hi There!!, i am interested in the house id \"${room.room_id}\" is can you please help me get it...`;
+    const message = `Hi There!!, i am interested in the house id \"${room.room_id}\" please can you help me acquire it?`;
     window.open(`https://wa.me/254703209997?text=${encodeURIComponent(message)}`, '_blank');
   };
 
