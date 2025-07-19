@@ -7,6 +7,21 @@ import AccountPage from '../components/AccountPage';
 import { Search, X } from 'lucide-react';
 import { Input } from '../components/ui/input';
 import type { Room } from '@/lib/supabase';
+import RoomEditModal from '../components/RoomEditModal';
+import { Dialog as UIDialog, DialogContent as UIDialogContent, DialogHeader as UIDialogHeader, DialogTitle as UIDialogTitle } from '../components/ui/dialog';
+import { Button } from '../components/ui/button';
+import AddRoom from './AddRoom';
+// Utility to get logged-in user's phone
+function getAccountPhone() {
+  const userStr = localStorage.getItem('currentUser');
+  if (!userStr) return '';
+  try {
+    const user = JSON.parse(userStr);
+    return user.phone || user.phone_number || '';
+  } catch {
+    return '';
+  }
+}
 
 interface IndexProps {
   onLogout: () => void;
@@ -24,6 +39,12 @@ const Index = ({ onLogout, onViewModeChange, user }: IndexProps) => {
   const [bookmarkedRooms, setBookmarkedRooms] = useState<Room[]>([]);
   const [activeTab, setActiveTab] = useState('home');
   const [showSearchModal, setShowSearchModal] = useState(false);
+  const [showUserAddRoom, setShowUserAddRoom] = useState(false);
+  const [userAddRoomLoading, setUserAddRoomLoading] = useState(false);
+  const [userAddRoomSuccess, setUserAddRoomSuccess] = useState(false);
+  const [showPhonePopup, setShowPhonePopup] = useState(false);
+  const [userPhone, setUserPhone] = useState(getAccountPhone());
+  const [phoneError, setPhoneError] = useState('');
 
   const handleFilterChange = (newFilters: typeof filters) => {
     setFilters(newFilters);
@@ -37,6 +58,18 @@ const Index = ({ onLogout, onViewModeChange, user }: IndexProps) => {
       setShowSearchModal(false);
       setSearchQuery('');
     }
+  };
+
+  // Phone popup submit
+  const handlePhoneSubmit = () => {
+    // Simple Safaricom validation: starts with 07 and 10 digits
+    if (!/^07\d{8}$/.test(userPhone)) {
+      setPhoneError('Please enter a valid Safaricom number (e.g., 07XXXXXXXX)');
+      return;
+    }
+    setPhoneError('');
+    setShowPhonePopup(false);
+    setShowUserAddRoom(true);
   };
 
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,6 +103,26 @@ const Index = ({ onLogout, onViewModeChange, user }: IndexProps) => {
     } else {
       // Add to bookmarks
       setBookmarkedRooms(prev => [...prev, room]);
+    }
+  };
+
+  // User add room submit handler
+  const handleUserAddRoom = async (roomData: any) => {
+    setUserAddRoomLoading(true);
+    try {
+      // Add flags for unverified/user-submitted and user phone
+      const newRoom = { ...roomData, verified: false, submitted_by_user: true, user_phone: userPhone };
+      await import('../lib/supabase').then(({ roomsApi }) => roomsApi.createRoom(newRoom));
+      setUserAddRoomSuccess(true);
+      setTimeout(() => {
+        setShowUserAddRoom(false);
+        setUserAddRoomSuccess(false);
+        setUserPhone('');
+      }, 3500);
+    } catch (err) {
+      alert('Failed to submit room. Please try again.');
+    } finally {
+      setUserAddRoomLoading(false);
     }
   };
 
@@ -126,6 +179,8 @@ const Index = ({ onLogout, onViewModeChange, user }: IndexProps) => {
             <AccountPage onLogout={onLogout} />
           </>
         );
+      case 'add-rooms':
+        return <AddRoom userPhone={userPhone} />;
       default:
         return (
           <>
@@ -192,6 +247,33 @@ const Index = ({ onLogout, onViewModeChange, user }: IndexProps) => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* User Add Room Modal */}
+      {showUserAddRoom && (
+        <RoomEditModal
+          room={null}
+          isOpen={showUserAddRoom}
+          onClose={() => setShowUserAddRoom(false)}
+          onSave={handleUserAddRoom}
+          isCreateMode={true}
+          hideVerifiedToggle={true}
+          loading={userAddRoomLoading}
+          success={userAddRoomSuccess}
+          userMode={true}
+          userPhone={userPhone}
+        />
+      )}
+
+      {/* Congratulatory Note Overlay - always on top */}
+      {userAddRoomSuccess && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60">
+          <div className="bg-white rounded-lg p-6 max-w-sm mx-auto text-center shadow-lg">
+            <h2 className="text-2xl font-bold mb-2 text-kisu-green">Thank you!</h2>
+            <p className="text-gray-700 mb-2">Your property has been submitted for review.</p>
+            <p className="text-gray-600">After review, your property will be uploaded. Good day!</p>
           </div>
         </div>
       )}

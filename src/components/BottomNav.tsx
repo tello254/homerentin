@@ -1,4 +1,4 @@
-import { Home, Search, Bookmark, User } from 'lucide-react';
+import { Home, Search, Bookmark, User, Plus } from 'lucide-react';
 import { useState } from 'react';
 
 interface BottomNavProps {
@@ -17,6 +17,7 @@ const BottomNav = ({ onTabChange }: BottomNavProps) => {
     { id: 'home', icon: Home, label: 'Home' },
     { id: 'search', icon: Search, label: 'Search' },
     { id: 'bookmarks', icon: Bookmark, label: 'Bookmarks' },
+    { id: 'add-rooms', icon: Plus, label: 'Add Rooms' },
     { id: 'account', icon: User, label: 'Account' },
   ];
 

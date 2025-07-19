@@ -173,17 +173,17 @@ const RoomListings = ({ filters, searchQuery = '', onBookmark, customRooms, book
   let error: string | null = null;
 
   if (customRooms) {
-    // Use custom rooms (for bookmarks)
+    // Use custom rooms (for bookmarks or admin)
     rooms = customRooms;
   } else {
-    // Use Supabase data only
+    // Use Supabase data only, filter to only verified rooms for user view
     try {
       const supabaseData = useRooms({
         roomType: filters.roomType !== 'all' ? filters.roomType : undefined,
         priceRange: filters.priceRange !== 'all' ? filters.priceRange : undefined,
         area: filters.area !== 'all' ? filters.area : undefined
       });
-      rooms = supabaseData.rooms;
+      rooms = (supabaseData.rooms || []).filter(room => room.verification);
       loading = supabaseData.loading;
       error = supabaseData.error;
     } catch (err) {

@@ -24,7 +24,7 @@ const AdminDashboard = ({ onLogout, onViewModeChange }: AdminDashboardProps) => 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isCreateMode, setIsCreateMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchType, setSearchType] = useState<'title' | 'roomId' | 'landlordPhone'>('title');
+  const [searchType, setSearchType] = useState<'title' | 'roomId' | 'landlordPhone' | 'unverified'>('title');
   
   // Individual privacy states for each statistics card
   const [showTotalRooms, setShowTotalRooms] = useState(false);
@@ -71,18 +71,21 @@ const AdminDashboard = ({ onLogout, onViewModeChange }: AdminDashboardProps) => 
   }, []);
 
   // Filter rooms by search query and type
-  const filteredRooms = searchQuery.trim() 
-    ? rooms.filter(room => {
-        if (searchType === 'title') {
-          return room.title.toLowerCase().includes(searchQuery.toLowerCase());
-        } else if (searchType === 'roomId') {
-          return room.id && room.id.toLowerCase().includes(searchQuery.toLowerCase());
-        } else if (searchType === 'landlordPhone') {
-          return room.landlord_phone && room.landlord_phone.toLowerCase().includes(searchQuery.toLowerCase());
-        }
-        return false;
-      })
-    : rooms;
+  const filteredRooms =
+    searchType === 'unverified'
+      ? rooms.filter(room => !room.verification)
+      : searchQuery.trim()
+        ? rooms.filter(room => {
+            if (searchType === 'title') {
+              return room.title.toLowerCase().includes(searchQuery.toLowerCase());
+            } else if (searchType === 'roomId') {
+              return room.id && room.id.toLowerCase().includes(searchQuery.toLowerCase());
+            } else if (searchType === 'landlordPhone') {
+              return room.landlord_phone && room.landlord_phone.toLowerCase().includes(searchQuery.toLowerCase());
+            }
+            return false;
+          })
+        : rooms;
 
   const handleEditRoom = (room: Room) => {
     setSelectedRoom(room);
@@ -106,6 +109,16 @@ const AdminDashboard = ({ onLogout, onViewModeChange }: AdminDashboardProps) => 
     } catch (err) {
       console.error('Failed to delete room:', err);
       alert('Failed to delete room');
+    }
+  };
+
+  const handleApproveRoom = async (roomId: string) => {
+    try {
+      await roomsApi.updateRoom(roomId, { verification: true });
+      await fetchRooms();
+      alert('Room approved and now visible to users!');
+    } catch (err) {
+      alert('Failed to approve room.');
     }
   };
 
@@ -200,13 +213,14 @@ const AdminDashboard = ({ onLogout, onViewModeChange }: AdminDashboardProps) => 
           <select
             aria-label="Search type"
             value={searchType}
-            onChange={e => setSearchType(e.target.value as 'title' | 'roomId' | 'landlordPhone')}
+            onChange={e => setSearchType(e.target.value as 'title' | 'roomId' | 'landlordPhone' | 'unverified')}
             className="border rounded px-2 py-1 text-sm bg-white"
             style={{ minWidth: 120 }}
           >
             <option value="title">Room Title</option>
             <option value="roomId">Room ID</option>
             <option value="landlordPhone">Landlord Phone</option>
+            <option value="unverified">Unverified Rooms</option>
           </select>
         </div>
       </div>
@@ -377,7 +391,6 @@ const AdminDashboard = ({ onLogout, onViewModeChange }: AdminDashboardProps) => 
                                 <Badge variant="outline" className="text-xs">WiFi</Badge>
                               )}
                             </div>
-                            
                             {/* Action Buttons */}
                             <div className="flex gap-2 pt-2" onClick={(e) => e.stopPropagation()}>
                               <Button
@@ -395,6 +408,16 @@ const AdminDashboard = ({ onLogout, onViewModeChange }: AdminDashboardProps) => 
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
+                              {!room.verification && (
+                                <Button
+                                  onClick={(e) => { e.stopPropagation(); handleApproveRoom(room.id); }}
+                                  size="sm"
+                                  variant="default"
+                                  className="bg-green-600 hover:bg-green-700 text-white"
+                                >
+                                  Approve
+                                </Button>
+                              )}
                             </div>
                           </CardContent>
                         </Card>

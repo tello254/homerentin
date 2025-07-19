@@ -9,9 +9,10 @@ interface RoomCardProps {
   onImageClick?: (room: Room) => void;
   isBookmarked?: boolean;
   showBookmarkButton?: boolean;
+  showVerificationStatus?: boolean;
 }
 
-const RoomCard = ({ room, onClick, onBookmark, onImageClick, isBookmarked, showBookmarkButton = true }: RoomCardProps) => {
+const RoomCard = ({ room, onClick, onBookmark, onImageClick, isBookmarked, showBookmarkButton = true, showVerificationStatus = false }: RoomCardProps) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'vacant':
@@ -75,6 +76,25 @@ const RoomCard = ({ room, onClick, onBookmark, onImageClick, isBookmarked, showB
     }
   };
 
+  let verificationLabel = '';
+  let verificationColor = '';
+  if (showVerificationStatus) {
+    if (room.verification) {
+      verificationLabel = 'Approved';
+      verificationColor = 'bg-green-100 text-green-800 border-green-400';
+    } else if (room.status === 'pending') {
+      verificationLabel = 'Pending';
+      verificationColor = 'bg-yellow-100 text-yellow-800 border-yellow-400';
+    } else if (!['vacant', 'occupied', 'maintenance', 'pending'].includes(room.status)) {
+      // Any status not in the allowed list is considered Denied
+      verificationLabel = 'Denied';
+      verificationColor = 'bg-red-100 text-red-800 border-red-400';
+    } else {
+      verificationLabel = 'Pending';
+      verificationColor = 'bg-yellow-100 text-yellow-800 border-yellow-400';
+    }
+  }
+
   return (
     <div 
       className="bg-white rounded-lg shadow-md overflow-hidden mb-4 w-full cursor-pointer hover:shadow-lg transition-shadow"
@@ -89,6 +109,36 @@ const RoomCard = ({ room, onClick, onBookmark, onImageClick, isBookmarked, showB
             e.currentTarget.src = '/placeholder.svg';
           }}
         />
+        {/* Multiple Diagonal Watermarks */}
+        <div className="pointer-events-none select-none absolute inset-0 w-full h-full" style={{ zIndex: 2 }}>
+          {[
+            { pos: 0.2, top: '40%' }, // first (higher)
+            { pos: 0.5, top: '55%' }, // middle (lower)
+            { pos: 0.8, top: '30%' }, // third (even higher)
+          ].map(({ pos, top }, i) => (
+            <span
+              key={i}
+              style={{
+                position: 'absolute',
+                left: `${pos * 100}%`,
+                top,
+                transform: 'translate(-50%, -50%) rotate(-25deg)',
+                fontSize: '1.1rem',
+                color: 'rgba(0,0,0,0.13)',
+                fontWeight: 700,
+                letterSpacing: 2,
+                textShadow: '0 1px 4px rgba(0,0,0,0.10)',
+                userSelect: 'none',
+                whiteSpace: 'nowrap',
+                WebkitTextStroke: '1px rgba(255,255,255,0.25)',
+                border: 'none',
+                pointerEvents: 'none',
+              }}
+            >
+              HOMERENTIN
+            </span>
+          ))}
+        </div>
         <div className="absolute top-2 left-2">
           {room.verification && (
             <div className="flex items-center gap-1 text-blue-500 text-xs font-medium bg-blue-100/80 px-2 py-1 rounded-full">
@@ -113,13 +163,18 @@ const RoomCard = ({ room, onClick, onBookmark, onImageClick, isBookmarked, showB
         
         {/* Second Row: Full Information and Bookmark Buttons */}
         <div className="flex justify-between items-center mb-3">
-          <Badge 
-            onClick={handleFullInfo}
-            className="bg-gray-100 text-gray-700 border border-blue-500 text-xs px-3 py-1 cursor-pointer hover:bg-gray-200 transition-colors flex items-center gap-1"
-          >
-            <Info className="w-3 h-3" />
-            Full Information
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge 
+              onClick={handleFullInfo}
+              className="bg-gray-100 text-gray-700 border border-blue-500 text-xs px-3 py-1 cursor-pointer hover:bg-gray-200 transition-colors flex items-center gap-1"
+            >
+              <Info className="w-3 h-3" />
+              Full Information
+            </Badge>
+            {showVerificationStatus && (
+              <Badge className={`ml-2 border text-xs px-2 py-1 ${verificationColor}`}>{verificationLabel}</Badge>
+            )}
+          </div>
           <div className="flex items-center gap-2">
             <span className="text-xs font-mono bg-gray-100 text-gray-600 px-2 py-1 rounded">
               ID: {room.room_id || 'N/A'}

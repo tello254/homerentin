@@ -86,6 +86,36 @@ const ImageModal = ({ room, isOpen, onClose }: ImageModalProps) => {
               }}
               style={{ display: imageLoading ? 'block' : 'block' }}
             />
+            {/* Multiple Diagonal Watermarks */}
+            <div className="pointer-events-none select-none absolute inset-0 w-full h-full" style={{ zIndex: 2 }}>
+              {[
+                { pos: 0.18, top: '38%' }, // first (higher)
+                { pos: 0.5, top: '55%' }, // middle (lower)
+                { pos: 0.82, top: '28%' }, // third (even higher)
+              ].map(({ pos, top }, i) => (
+                <span
+                  key={i}
+                  style={{
+                    position: 'absolute',
+                    left: `${pos * 100}%`,
+                    top,
+                    transform: 'translate(-50%, -50%) rotate(-25deg)',
+                    fontSize: '2.2rem',
+                    color: 'rgba(0,0,0,0.13)',
+                    fontWeight: 700,
+                    letterSpacing: 2,
+                    textShadow: '0 1px 4px rgba(0,0,0,0.10)',
+                    userSelect: 'none',
+                    whiteSpace: 'nowrap',
+                    WebkitTextStroke: i === 1 ? '1px rgba(255,255,255,0.15)' : '1px rgba(255,255,255,0.25)',
+                    border: 'none',
+                    pointerEvents: 'none',
+                  }}
+                >
+                  HOMERENTIN
+                </span>
+              ))}
+            </div>
             {imageLoading && (
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>

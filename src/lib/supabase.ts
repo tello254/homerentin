@@ -38,6 +38,7 @@ export interface Room {
   images: string[]
   created_at: string
   updated_at: string
+  user_phone: string // uploader's phone number
 }
 
 export interface User {
@@ -69,6 +70,7 @@ export const roomsApi = {
     priceRange?: string
     status?: string
     verification?: boolean
+    user_phone?: string
   }) {
     let query = supabase
       .from('rooms')
@@ -108,6 +110,10 @@ export const roomsApi = {
       } else if (min) {
         query = query.gte('price', min);
       }
+    }
+
+    if (filters?.user_phone) {
+      query = query.eq('user_phone', filters.user_phone);
     }
 
     const { data, error } = await query

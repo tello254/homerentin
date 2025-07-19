@@ -83,17 +83,47 @@ const RoomModal = ({ room, isOpen, onClose }: RoomModalProps) => {
         {/* Image Carousel */}
         <div className="relative">
           <div className="w-full h-64 flex items-center justify-center relative">
-            <img
-              src={room.images && room.images.length > 0 ? room.images[currentImageIndex] : '/placeholder.svg'}
-              alt={room.title}
+          <img
+            src={room.images && room.images.length > 0 ? room.images[currentImageIndex] : '/placeholder.svg'}
+            alt={room.title}
               className={`w-full h-64 object-cover transition-all duration-300 ${imageLoading ? 'blur-md scale-105' : ''}`}
               onLoad={() => setImageLoading(false)}
-              onError={(e) => {
-                e.currentTarget.src = '/placeholder.svg';
+            onError={(e) => {
+              e.currentTarget.src = '/placeholder.svg';
                 setImageLoading(false);
               }}
               style={{ display: imageLoading ? 'block' : 'block' }}
-            />
+          />
+          {/* Multiple Diagonal Watermarks */}
+          <div className="pointer-events-none select-none absolute inset-0 w-full h-full" style={{ zIndex: 2 }}>
+            {[
+              { pos: 0.18, top: '32%', fontSize: '1.2rem' }, // first (higher, smaller)
+              { pos: 0.5, top: '60%', fontSize: '1.5rem' }, // middle (lower, a bit larger)
+              { pos: 0.82, top: '20%', fontSize: '1rem' }, // third (even higher, smallest)
+            ].map(({ pos, top, fontSize }, i) => (
+              <span
+                key={i}
+                style={{
+                  position: 'absolute',
+                  left: `${pos * 100}%`,
+                  top,
+                  transform: 'translate(-50%, -50%) rotate(-25deg)',
+                  fontSize,
+                  color: 'rgba(0,0,0,0.13)',
+                  fontWeight: 700,
+                  letterSpacing: 2,
+                  textShadow: '0 1px 4px rgba(0,0,0,0.10)',
+                  userSelect: 'none',
+                  whiteSpace: 'nowrap',
+                  WebkitTextStroke: '1px rgba(255,255,255,0.25)',
+                  border: 'none',
+                  pointerEvents: 'none',
+                }}
+              >
+                HOMERENTIN
+              </span>
+            ))}
+          </div>
             {imageLoading && (
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
