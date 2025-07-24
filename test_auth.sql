@@ -33,9 +33,9 @@ SELECT * FROM create_user('newuser', '+1111111111', 'newpass123', 'newuser@examp
 SELECT 'Test 5: Login with new user' as test_name;
 SELECT * FROM authenticate_user('newuser', '+1111111111', 'newpass123');
 
--- Test 6: Reset user password
+-- Test 6:  user password
 SELECT 'Test 6: Reset user password' as test_name;
-SELECT * FROM reset_user_password('user1', '+9876543210', 'newpassword123', 'newpassword123');
+SELECT * FROM _password('user1', '+9876543210', 'newpassword123', 'newpassword123');
 
 -- Test 7: Login with new password
 SELECT 'Test 7: Login with new password' as test_name;

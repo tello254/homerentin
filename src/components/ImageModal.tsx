@@ -74,18 +74,18 @@ const ImageModal = ({ room, isOpen, onClose }: ImageModalProps) => {
             </div>
           )}
           <div className="w-full h-full flex items-center justify-center relative">
-            <img
-              src={room.images[currentImageIndex] || '/placeholder.svg'}
-              alt={`${room.title} - Image ${currentImageIndex + 1}`}
+          <img
+            src={room.images[currentImageIndex] || '/placeholder.svg'}
+            alt={`${room.title} - Image ${currentImageIndex + 1}`}
               className={`max-w-full max-h-full object-contain cursor-pointer transition-all duration-300 ${imageLoading ? 'blur-md scale-105' : ''}`}
-              onClick={handleImageClick}
+            onClick={handleImageClick}
               onLoad={() => setImageLoading(false)}
-              onError={(e) => {
-                e.currentTarget.src = '/placeholder.svg';
+            onError={(e) => {
+              e.currentTarget.src = '/placeholder.svg';
                 setImageLoading(false);
               }}
               style={{ display: imageLoading ? 'block' : 'block' }}
-            />
+          />
             {/* Multiple Diagonal Watermarks */}
             <div className="pointer-events-none select-none absolute inset-0 w-full h-full" style={{ zIndex: 2 }}>
               {[

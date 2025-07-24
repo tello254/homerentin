@@ -194,7 +194,19 @@ const RoomModal = ({ room, isOpen, onClose }: RoomModalProps) => {
               </div>
               <h2 className="font-bold text-xl">{room.title}</h2>
             </div>
+            <div className="flex flex-col items-end">
             <span className="text-kisu-green font-bold text-xl">KES {room.price.toLocaleString()}</span>
+              {room.deposit && room.deposit > 0 && (
+                <>
+                  <span className="text-orange-500 font-semibold text-sm mt-2 whitespace-nowrap">
+                    Deposit: KES {room.deposit.toLocaleString()}
+                  </span>
+                  <span className="block text-xs text-orange-400 font-normal mt-1">
+                    (this is the amount you pay before moving in,<br/>paid only once and is not part of the month's rental fee)
+                  </span>
+                </>
+              )}
+            </div>
           </div>
           
           <div className="flex items-center text-gray-600 mb-2">
@@ -257,6 +269,9 @@ const RoomModal = ({ room, isOpen, onClose }: RoomModalProps) => {
               <p><span className="font-medium">Size:</span> {room.size}</p>
               <p><span className="font-medium">Floor:</span> {room.floor}</p>
               <p><span className="font-medium">Payment:</span> {room.payment_type}</p>
+              {room.terms && (
+                <p><span className="font-medium">Terms:</span> {room.terms}</p>
+              )}
               {room.additional_info && (
                 <p><span className="font-medium">Additional Info:</span> {room.additional_info}</p>
               )}

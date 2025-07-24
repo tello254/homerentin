@@ -6,6 +6,7 @@ import { Label } from './ui/label';
 import { Phone, Lock, Eye, EyeOff, ArrowLeft, User } from 'lucide-react';
 import { useAuth } from '@/hooks/useSupabase';
 import AdminVerificationModal, { AdminWelcomeModal } from './AdminVerificationModal';
+import { userApi } from '@/lib/supabase';
 
 interface AuthPageProps {
   onLogin: (user?: any) => void;
@@ -80,6 +81,10 @@ const AuthPage = ({ onLogin }: AuthPageProps) => {
     setLastBackClick(now);
   };
 
+  // Utility to normalize username and phone
+  const normalizeUsername = (u: string) => u.trim().toLowerCase();
+  const normalizePhone = (p: string) => p.trim();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -102,7 +107,7 @@ const AuthPage = ({ onLogin }: AuthPageProps) => {
         return;
       } else {
         console.log('👤 Attempting user login...');
-        const result = await signIn(username, phone, password);
+        const result = await signIn(normalizeUsername(username), normalizePhone(phone), password);
         console.log('👤 User login result:', result);
         
         if (result.error) {
@@ -172,12 +177,18 @@ const AuthPage = ({ onLogin }: AuthPageProps) => {
     setError(null);
     
     try {
-      const result = await signUp(signupUsername, signupPhone, signupPassword);
+      const result = await signUp(normalizeUsername(signupUsername), normalizePhone(signupPhone), signupPassword);
       
       if (result.error) {
         setError(result.error);
       } else {
-        onLogin(); // Log user in directly after signup
+        // After successful signup, sign in with the new credentials
+        const loginResult = await signIn(normalizeUsername(signupUsername), normalizePhone(signupPhone), signupPassword);
+        if (loginResult.error) {
+          setError(loginResult.error);
+        } else {
+          onLogin(loginResult.data);
+        }
       }
     } catch (err) {
       setError('An unexpected error occurred');
@@ -186,11 +197,21 @@ const AuthPage = ({ onLogin }: AuthPageProps) => {
     }
   };
 
-  const handleForgotStep1 = (e: React.FormEvent) => {
+  const handleForgotStep1 = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError(null);
     if (forgotPhone && forgotUsername) {
+      // Check if user exists with both username and phone
+      const { data, error } = await userApi.getUserByUsernameAndPhone(normalizeUsername(forgotUsername), normalizePhone(forgotPhone));
+      if (error || !data) {
+        setError('Seems like you have forgoten either of the details, kindly sign up.');
+        setIsLoading(false);
+        return;
+      }
       setMode('forgot-step2');
     }
+    setIsLoading(false);
   };
 
   const handleForgotStep2 = async (e: React.FormEvent) => {
@@ -200,12 +221,19 @@ const AuthPage = ({ onLogin }: AuthPageProps) => {
       setError(null);
       
       try {
-        const result = await resetPassword(forgotUsername, forgotPhone, newPassword, confirmPassword);
-        
+        const result = await resetPassword(normalizeUsername(forgotUsername), normalizePhone(forgotPhone), newPassword, confirmPassword);
+        console.log('resetPassword result:', result);
         if (result.error) {
           setError(result.error);
         } else {
-          onLogin(); // Log user in directly after password reset
+          // After password reset, sign in with the new credentials
+          const loginResult = await signIn(normalizeUsername(forgotUsername), normalizePhone(forgotPhone), newPassword);
+          if (loginResult.error) {
+            setError(loginResult.error);
+          } else {
+            onLogin(loginResult.data);
+            console.log('currentUser in localStorage after reset:', localStorage.getItem('currentUser'));
+          }
         }
       } catch (err) {
         setError('An unexpected error occurred');
@@ -309,26 +337,25 @@ const AuthPage = ({ onLogin }: AuthPageProps) => {
           </Button>
         </div>
         {/* Forgot Password link below password input, aligned right */}
-        <div className="w-full flex justify-end">
+        <div className="w-full flex justify-between items-center mt-1 mb-1">
           <button
             type="button"
             onClick={() => setMode('forgot-step1')}
-            className="text-xs text-blue-600 hover:text-blue-800 font-medium mt-1 mb-1 text-right"
+            className="text-xs text-blue-600 hover:text-blue-800 font-medium text-left"
           >
             Forgot Password?
           </button>
+          <span className="text-xs text-gray-600">
+            Don't have an account?{' '}
+            <button
+              type="button"
+              onClick={() => setMode('signup')}
+              className="text-kisu-green font-bold text-base hover:text-green-700 focus:outline-none"
+            >
+              Sign up
+            </button>
+          </span>
         </div>
-        {/* Sign up sentence below forgot password */}
-        <span className="text-xs text-gray-600 block mb-2">
-          Don't have an account?{' '}
-          <button
-            type="button"
-            onClick={() => setMode('signup')}
-            className="text-blue-600 hover:text-blue-800 font-medium"
-          >
-            Sign up
-          </button>
-        </span>
       </div>
       
       {showAdminCheckbox && (
@@ -452,6 +479,11 @@ const AuthPage = ({ onLogin }: AuthPageProps) => {
 
   const renderForgotStep1 = () => (
     <form onSubmit={handleForgotStep1} className="space-y-4">
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
+          {error}
+        </div>
+      )}
       <div className="space-y-2">
         <Label htmlFor="forgotPhone" className="flex items-center gap-2">
           <Phone className="h-4 w-4" />

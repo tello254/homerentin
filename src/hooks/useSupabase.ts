@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react'
 import { supabase, roomsApi, authApi, bookingsApi, type Room, type Booking } from '@/lib/supabase'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 
+// Utility to normalize username and phone
+const normalizeUsername = (u: string) => u.trim().toLowerCase();
+const normalizePhone = (p: string) => p.trim();
+
 export const useRooms = (filters?: {
   roomType?: string
   area?: string
@@ -47,7 +51,7 @@ export const useAuth = () => {
 
   const signUp = async (username: string, phone: string, password: string, email?: string) => {
     try {
-      const { data, error } = await authApi.signUp(username, phone, password, email)
+      const { data, error } = await authApi.signUp(normalizeUsername(username), normalizePhone(phone), password, email)
       if (error) throw new Error(error.message || 'Sign up failed')
       
       // If signup successful, automatically sign in
@@ -66,8 +70,9 @@ export const useAuth = () => {
     try {
       console.log('🔍 signIn called with:', { username, phone, password: '***' + password.slice(-2) });
       
-      const { data, error } = await authApi.signIn(username, phone, password);
-      console.log('🔍 authApi.signIn response:', { data, error });
+      const { data, error } = await authApi.signIn(normalizeUsername(username), normalizePhone(phone), password);
+      console.log('signIn data:', data);
+      console.log('signIn error:', error);
       
       if (error) throw new Error(error.message || 'Sign in failed')
       
@@ -102,7 +107,7 @@ export const useAuth = () => {
     try {
       console.log('🔍 signInAdmin called with:', { username, phone, password: '***' + password.slice(-2) });
       
-      const { data, error } = await authApi.signInAdmin(username, phone, password);
+      const { data, error } = await authApi.signInAdmin(normalizeUsername(username), normalizePhone(phone), password);
       console.log('🔍 authApi.signInAdmin response:', { data, error });
       
       if (error) throw new Error(error.message || 'Admin sign in failed')
@@ -136,13 +141,14 @@ export const useAuth = () => {
 
   const resetPassword = async (username: string, phone: string, newPassword: string, confirmPassword: string) => {
     try {
-      const { data, error } = await authApi.resetPassword(username, phone, newPassword, confirmPassword)
+      const { data, error } = await authApi.resetPassword(normalizeUsername(username), normalizePhone(phone), newPassword, confirmPassword)
       if (error) throw new Error(error.message || 'Password reset failed')
       
       if (data?.success) {
-        // Automatically sign in after password reset
-        const signInResult = await signIn(username, phone, newPassword)
-        return signInResult
+        // Automatically sign in after password reset and return its result
+        const signInResult = await signIn(username, phone, newPassword);
+        console.log('signIn result after password reset:', signInResult);
+        return signInResult;
       }
       
       return { data, error: null }

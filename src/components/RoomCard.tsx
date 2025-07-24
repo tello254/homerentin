@@ -158,19 +158,24 @@ const RoomCard = ({ room, onClick, onBookmark, onImageClick, isBookmarked, showB
         {/* First Row: Title and Price */}
         <div className="flex justify-between items-start mb-3">
           <h3 className="font-semibold text-lg flex-1 mr-2">{room.title}</h3>
-          <span className="text-kisu-green font-bold text-lg">KES {room.price.toLocaleString()}</span>
+          <div className="flex flex-col items-end">
+            <span className="text-kisu-green font-bold text-lg">KES {room.price.toLocaleString()}</span>
+            {room.deposit !== undefined && room.deposit !== null && (
+              <span className="text-orange-500 font-semibold text-sm mt-1">Deposit: KES {room.deposit.toLocaleString()}</span>
+            )}
+          </div>
         </div>
         
         {/* Second Row: Full Information and Bookmark Buttons */}
         <div className="flex justify-between items-center mb-3">
           <div className="flex items-center gap-2">
-            <Badge 
-              onClick={handleFullInfo}
-              className="bg-gray-100 text-gray-700 border border-blue-500 text-xs px-3 py-1 cursor-pointer hover:bg-gray-200 transition-colors flex items-center gap-1"
-            >
-              <Info className="w-3 h-3" />
-              Full Information
-            </Badge>
+          <Badge 
+            onClick={handleFullInfo}
+            className="bg-gray-100 text-gray-700 border border-blue-500 text-xs px-3 py-1 cursor-pointer hover:bg-gray-200 transition-colors flex items-center gap-1"
+          >
+            <Info className="w-3 h-3" />
+            Full Information
+          </Badge>
             {showVerificationStatus && (
               <Badge className={`ml-2 border text-xs px-2 py-1 ${verificationColor}`}>{verificationLabel}</Badge>
             )}

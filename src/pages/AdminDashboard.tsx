@@ -75,17 +75,17 @@ const AdminDashboard = ({ onLogout, onViewModeChange }: AdminDashboardProps) => 
     searchType === 'unverified'
       ? rooms.filter(room => !room.verification)
       : searchQuery.trim()
-        ? rooms.filter(room => {
-            if (searchType === 'title') {
-              return room.title.toLowerCase().includes(searchQuery.toLowerCase());
-            } else if (searchType === 'roomId') {
-              return room.id && room.id.toLowerCase().includes(searchQuery.toLowerCase());
-            } else if (searchType === 'landlordPhone') {
-              return room.landlord_phone && room.landlord_phone.toLowerCase().includes(searchQuery.toLowerCase());
-            }
-            return false;
-          })
-        : rooms;
+    ? rooms.filter(room => {
+        if (searchType === 'title') {
+          return room.title.toLowerCase().includes(searchQuery.toLowerCase());
+        } else if (searchType === 'roomId') {
+          return room.id && room.id.toLowerCase().includes(searchQuery.toLowerCase());
+        } else if (searchType === 'landlordPhone') {
+          return room.landlord_phone && room.landlord_phone.toLowerCase().includes(searchQuery.toLowerCase());
+        }
+        return false;
+      })
+    : rooms;
 
   const handleEditRoom = (room: Room) => {
     setSelectedRoom(room);
@@ -340,10 +340,10 @@ const AdminDashboard = ({ onLogout, onViewModeChange }: AdminDashboardProps) => 
                           boxShadow: dragSnapshot.isDragging ? '0 4px 16px rgba(0,0,0,0.15)' : undefined,
                         }}
                       >
-                        <Card 
+            <Card 
                           className="hover:shadow-lg transition-shadow cursor-pointer w-full"
-                          onClick={() => handleEditRoom(room)}
-                        >
+              onClick={() => handleEditRoom(room)}
+            >
                           {/* Room Image */}
                           <div className="w-full h-40 bg-gray-100 flex items-center justify-center overflow-hidden rounded-t-lg">
                             <img
@@ -353,61 +353,61 @@ const AdminDashboard = ({ onLogout, onViewModeChange }: AdminDashboardProps) => 
                               onError={(e) => { e.currentTarget.src = '/placeholder.svg'; }}
                             />
                           </div>
-                          <CardHeader className="pb-3">
-                            <div className="flex justify-between items-start">
-                              <CardTitle className="text-lg">{room.title}</CardTitle>
-                              <div className="flex gap-1">
-                                <Badge className={getStatusColor(room.status)}>
-                                  {room.status}
-                                </Badge>
-                                <Badge className={getRoomTypeColor(room.room_type)}>
-                                  {room.room_type}
-                                </Badge>
-                              </div>
-                            </div>
-                          </CardHeader>
-                          <CardContent className="space-y-3">
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-600">Price:</span>
-                              <span className="font-semibold text-green-600">
-                                KES {room.price.toLocaleString()}
-                              </span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-600">Location:</span>
-                              <span className="text-sm">{room.location}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                              <span className="text-gray-600">Landlord:</span>
-                              <span className="text-sm">{room.landlord_phone || 'Not set'}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {room.verification && (
-                                <Badge variant="secondary" className="bg-blue-500 text-white text-xs">
-                                  Verified
-                                </Badge>
-                              )}
-                              {room.wifi && (
-                                <Badge variant="outline" className="text-xs">WiFi</Badge>
-                              )}
-                            </div>
-                            {/* Action Buttons */}
-                            <div className="flex gap-2 pt-2" onClick={(e) => e.stopPropagation()}>
-                              <Button
-                                onClick={() => handleEditRoom(room)}
-                                size="sm"
-                                className="flex-1"
-                              >
-                                <Edit className="w-4 h-4 mr-1" />
-                                Edit
-                              </Button>
-                              <Button
-                                onClick={() => handleDeleteRoom(room.id)}
-                                size="sm"
-                                variant="destructive"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
+              <CardHeader className="pb-3">
+                <div className="flex justify-between items-start">
+                  <CardTitle className="text-lg">{room.title}</CardTitle>
+                  <div className="flex gap-1">
+                    <Badge className={getStatusColor(room.status)}>
+                      {room.status}
+                    </Badge>
+                    <Badge className={getRoomTypeColor(room.room_type)}>
+                      {room.room_type}
+                    </Badge>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Price:</span>
+                  <span className="font-semibold text-green-600">
+                    KES {room.price.toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Location:</span>
+                  <span className="text-sm">{room.location}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Landlord:</span>
+                  <span className="text-sm">{room.landlord_phone || 'Not set'}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {room.verification && (
+                    <Badge variant="secondary" className="bg-blue-500 text-white text-xs">
+                      Verified
+                    </Badge>
+                  )}
+                  {room.wifi && (
+                    <Badge variant="outline" className="text-xs">WiFi</Badge>
+                  )}
+                </div>
+                {/* Action Buttons */}
+                <div className="flex gap-2 pt-2" onClick={(e) => e.stopPropagation()}>
+                  <Button
+                    onClick={() => handleEditRoom(room)}
+                    size="sm"
+                    className="flex-1"
+                  >
+                    <Edit className="w-4 h-4 mr-1" />
+                    Edit
+                  </Button>
+                  <Button
+                    onClick={() => handleDeleteRoom(room.id)}
+                    size="sm"
+                    variant="destructive"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
                               {!room.verification && (
                                 <Button
                                   onClick={(e) => { e.stopPropagation(); handleApproveRoom(room.id); }}
@@ -418,15 +418,15 @@ const AdminDashboard = ({ onLogout, onViewModeChange }: AdminDashboardProps) => 
                                   Approve
                                 </Button>
                               )}
-                            </div>
-                          </CardContent>
-                        </Card>
+                </div>
+              </CardContent>
+            </Card>
                       </div>
                     )}
                   </Draggable>
-                ))}
+          ))}
                 {provided.placeholder}
-              </div>
+        </div>
             )}
           </Droppable>
         </DragDropContext>

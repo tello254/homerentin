@@ -46,7 +46,8 @@ const placeholderRooms: Room[] = [
     position: 1,
     images: ['/placeholder.svg'],
     created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
+    updated_at: new Date().toISOString(),
+    user_phone: '+254700000001',
     },
     {
       id: '2',
@@ -74,7 +75,8 @@ const placeholderRooms: Room[] = [
     position: 2,
     images: ['/placeholder.svg'],
     created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
+    updated_at: new Date().toISOString(),
+    user_phone: '+254700000002',
     },
     {
       id: '3',
@@ -102,7 +104,8 @@ const placeholderRooms: Room[] = [
     position: 3,
     images: ['/placeholder.svg'],
     created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
+    updated_at: new Date().toISOString(),
+    user_phone: '+254700000003',
     },
     {
       id: '4',
@@ -130,7 +133,8 @@ const placeholderRooms: Room[] = [
     position: 4,
     images: ['/placeholder.svg'],
     created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
+    updated_at: new Date().toISOString(),
+    user_phone: '+254700000004',
     },
     {
       id: '5',
@@ -158,7 +162,8 @@ const placeholderRooms: Room[] = [
     position: 5,
     images: ['/placeholder.svg'],
     created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
+    updated_at: new Date().toISOString(),
+    user_phone: '+254700000005',
   }
 ];
 
@@ -190,7 +195,7 @@ const RoomListings = ({ filters, searchQuery = '', onBookmark, customRooms, book
       rooms = [];
       error = 'Failed to fetch rooms';
     }
-  }
+    }
 
   // Sort rooms by position
   const sortedRooms = [...rooms].sort((a, b) => (a.position ?? 0) - (b.position ?? 0));

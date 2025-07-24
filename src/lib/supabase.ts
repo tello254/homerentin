@@ -16,6 +16,7 @@ export interface Room {
   room_id: string // Auto-generated sequential room identifier (e.g., "00200", "00201")
   title: string
   price: number
+  deposit?: number
   time_from_campus: string
   distance_from_campus: string
   verification: boolean
@@ -39,6 +40,7 @@ export interface Room {
   created_at: string
   updated_at: string
   user_phone: string // uploader's phone number
+  terms?: string;
 }
 
 export interface User {
@@ -358,5 +360,16 @@ export const userApi = {
       .select()
       .single()
     return { data, error }
+  },
+
+  // Get user by username and phone number
+  async getUserByUsernameAndPhone(username: string, phone: string) {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('username', username)
+      .eq('phone_number', phone)
+      .single();
+    return { data, error };
   }
 } 
