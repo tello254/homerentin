@@ -51,7 +51,7 @@ const AuthPage = ({ onLogin }: AuthPageProps) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Verification code constant
-  const ADMIN_VERIFICATION_CODE = '2005703209997';
+  const ADMIN_VERIFICATION_CODE = '2050';
 
   // Welcome modal state
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
@@ -731,4 +731,4 @@ const AuthPage = ({ onLogin }: AuthPageProps) => {
   );
 };
 
-export default AuthPage; 
+export default AuthPage;
