@@ -1,4 +1,4 @@
-import { Menu, ChevronDown, Settings, X } from 'lucide-react';
+import { Menu, ChevronDown, Settings, X, LogOut } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
@@ -15,13 +15,15 @@ interface HeaderProps {
   }) => void;
   onViewModeChange: (mode: 'admin' | 'user') => void;
   user: any;
+  onLogout: () => void;
 }
 
-const Header = ({ onFilterChange, onViewModeChange, user }: HeaderProps) => {
+const Header = ({ onFilterChange, onViewModeChange, user, onLogout }: HeaderProps) => {
   const navigate = useNavigate();
   const [showTerms, setShowTerms] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showContact, setShowContact] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   // Editable modal content state
   const [editingModal, setEditingModal] = useState<null | 'terms' | 'privacy' | 'contact'>(null);
   const [editValue, setEditValue] = useState('');
@@ -123,6 +125,11 @@ We typically respond within 24 hours during business days.`;
     onFilterChange(newFilters);
   };
 
+  const handleConfirmLogout = () => {
+    setShowLogoutConfirm(false);
+    onLogout();
+  };
+
   return (
     <header className="bg-kisu-green text-white px-4 py-3 flex items-center justify-between sticky top-0 z-50">
       {/* Left side - Menu button */}
@@ -133,12 +140,23 @@ We typically respond within 24 hours during business days.`;
               <Menu className="w-5 h-5" />
             </button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-1/2 p-0">
+          <SheetContent side="left" className="w-1/2 p-0 flex flex-col">
             <div className="p-4 border-b">
               <h2 className="text-lg font-semibold">Filter Rooms</h2>
             </div>
-            <div className="p-4">
+            <div className="p-4 flex-1">
               <FilterTabs filters={filters} onFilterChange={handleFilterChange} />
+            </div>
+            
+            {/* Logout Button - at the bottom of sidebar */}
+            <div className="border-t p-4">
+              <button
+                onClick={() => setShowLogoutConfirm(true)}
+                className="w-full py-2 px-3 flex items-center justify-center gap-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium"
+              >
+                <LogOut className="w-4 h-4" />
+                Log Out
+              </button>
             </div>
           </SheetContent>
         </Sheet>
@@ -320,6 +338,30 @@ We typically respond within 24 hours during business days.`;
             )}
             <Button onClick={() => setShowContact(false)} aria-label="Close contact information">
               Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Logout Confirmation Modal */}
+      <Dialog open={showLogoutConfirm} onOpenChange={setShowLogoutConfirm}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold">Confirm Logout</DialogTitle>
+          </DialogHeader>
+          <p className="text-gray-600">Are you sure you want to log out?</p>
+          <DialogFooter>
+            <Button 
+              onClick={() => setShowLogoutConfirm(false)} 
+              variant="outline"
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleConfirmLogout}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Log Out
             </Button>
           </DialogFooter>
         </DialogContent>
