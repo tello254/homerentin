@@ -197,6 +197,7 @@ const Index = ({ onLogout, onViewModeChange, user }: IndexProps) => {
         onFilterChange={handleFilterChange} 
         onViewModeChange={onViewModeChange}
         user={user}
+        onLogout={onLogout}
       />
       {renderContent()}
       <BottomNav onTabChange={handleTabChange} />
