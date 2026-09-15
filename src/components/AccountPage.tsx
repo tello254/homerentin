@@ -105,11 +105,16 @@ const AccountPage = ({ onLogout }: AccountPageProps) => {
       setUserInfo(prev => prev ? { ...prev, [field]: newValue } : null);
       setEditingField(null);
       
-      // Update localStorage
+      // Update localStorage - FIXED: Also update phone field when phone_number changes
       const currentUserStr = localStorage.getItem('currentUser');
       if (currentUserStr) {
         const currentUser = JSON.parse(currentUserStr);
-        const updatedUser = { ...currentUser, [field]: newValue };
+        const updatedUser = { 
+          ...currentUser, 
+          [field]: newValue,
+          // When updating phone_number, also update the phone field for future lookups
+          ...(field === 'phone_number' && { phone: newValue })
+        };
         localStorage.setItem('currentUser', JSON.stringify(updatedUser));
       }
     } catch (err) {
@@ -288,4 +293,4 @@ const AccountPage = ({ onLogout }: AccountPageProps) => {
   );
 };
 
-export default AccountPage; 
+export default AccountPage;
