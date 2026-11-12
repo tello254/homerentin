@@ -1,0 +1,60 @@
+# Keeps the free-tier Supabase project (cmeqhzuagqjqamgmbutx) from being paused
+# for inactivity. Free projects pause after ~7 days without API activity; this
+# runs every ~5 days and inserts one row into keepalive_pings using the
+# project's anon key (public by design — it's hardcoded in
+# src/lib/supabase.ts; an RLS policy allows anon inserts on that table only).
+# If the insert fails, it falls back to a read-only ping, which also counts as
+# activity. No GitHub secrets required.
+name: Supabase keep-alive
+
+on:
+  schedule:
+    - cron: "23 7 */5 * *" # every 5 days (days 1,6,11,16,21,26 of each month), ~07:23 UTC
+  workflow_dispatch: # allow manual trigger from the Actions tab
+
+env:
+  SUPABASE_URL: https://cmeqhzuagqjqamgmbutx.supabase.co
+  SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtZXFoenVhZ3FqcWFtZ21idXR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA5ODIyNjgsImV4cCI6MjA2NjU1ODI2OH0.pgNEPH46pZV6gb_NvO7BWsMb1bCGwZXU6h8kY4kV9Bs
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Insert keepalive row
+        id: insert
+        run: |
+          code=$(curl -sS -o /dev/null -w "%{http_code}" -X POST \
+            "$SUPABASE_URL/rest/v1/keepalive_pings" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+            -H "Content-Type: application/json" \
+            -H "Prefer: return=minimal" \
+            -d '{}')
+          echo "Keepalive insert responded with HTTP $code"
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+
+      - name: Ping Data API (read-only fallback)
+        if: steps.insert.outputs.code != '201'
+        run: |
+          code=$(curl -sS -o /dev/null -w "%{http_code}" \
+            "$SUPABASE_URL/rest/v1/rooms?select=id&limit=1" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY")
+          echo "Data API responded with HTTP $code (insert fallback)"
+          # 200/2xx (or even 401/403) all mean the request reached the project
+          # and registered as activity. Only a network failure (000) is fatal.
+          if [ "$code" = "000" ]; then
+            echo "Request never reached Supabase" >&2
+            exit 1
+          fi
+
+      - name: Ping Auth health endpoint
+        run: |
+          code=$(curl -sS -o /dev/null -w "%{http_code}" \
+            "$SUPABASE_URL/auth/v1/health" \
+            -H "apikey: $SUPABASE_ANON_KEY")
+          echo "Auth health responded with HTTP $code"
+          if [ "$code" = "000" ]; then
+            echo "Request never reached Supabase" >&2
+            exit 1
+          fi
