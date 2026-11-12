@@ -1,4 +1,5 @@
-import { MapPin, Phone, MessageCircle, Star, Clock, Ruler, Bookmark, Info, Shield } from 'lucide-react';
+import { useState } from 'react';
+import { MapPin, Phone, MessageCircle, Bookmark, Info, Shield } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import type { Room } from '@/lib/supabase';
 
@@ -13,6 +14,8 @@ interface RoomCardProps {
 }
 
 const RoomCard = ({ room, onClick, onBookmark, onImageClick, isBookmarked, showBookmarkButton = true, showVerificationStatus = false }: RoomCardProps) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'vacant':
@@ -48,13 +51,13 @@ const RoomCard = ({ room, onClick, onBookmark, onImageClick, isBookmarked, showB
   const handleContact = (e: React.MouseEvent) => {
     e.stopPropagation();
     // Make phone call to the specified number
-    window.location.href = 'tel:+254756600218';
+    window.location.href = 'tel:+254703209997';
   };
 
   const handleWhatsApp = (e: React.MouseEvent) => {
     e.stopPropagation();
     const message = `Hi There!!, i am interested in the house id \"${room.room_id}\" please can you help me acquire it?`;
-    window.open(`https://wa.me/254703209997?text=${encodeURIComponent(message)}`, '_blank');
+    window.open(`https://wa.me/254182544098?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   const handleFullInfo = (e: React.MouseEvent) => {
@@ -97,16 +100,24 @@ const RoomCard = ({ room, onClick, onBookmark, onImageClick, isBookmarked, showB
 
   return (
     <div 
-      className="bg-white rounded-lg shadow-md overflow-hidden mb-4 w-full cursor-pointer hover:shadow-lg transition-shadow"
+      className="bg-white rounded-xl shadow-sm hover:shadow-md overflow-hidden mb-4 w-full cursor-pointer transition-shadow [content-visibility:auto] [contain-intrinsic-size:auto_380px]"
     >
-      <div className="relative">
+      <div className="relative aspect-[4/3] bg-gray-100">
+        {/* Skeleton shimmer shown while the image loads */}
+        {!imageLoaded && (
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse" aria-hidden="true" />
+        )}
         <img
           src={room.images && room.images.length > 0 ? room.images[0] : '/placeholder.svg'}
           alt={room.title}
-          className="w-full h-48 object-cover cursor-pointer"
+          loading="lazy"
+          decoding="async"
+          onLoad={() => setImageLoaded(true)}
+          className={`w-full h-full object-cover cursor-pointer transition-opacity duration-500 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
           onClick={handleImageClick}
           onError={(e) => {
             e.currentTarget.src = '/placeholder.svg';
+            setImageLoaded(true);
           }}
         />
         {/* Multiple Diagonal Watermarks */}

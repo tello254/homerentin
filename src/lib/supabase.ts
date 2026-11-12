@@ -97,20 +97,17 @@ export const roomsApi = {
     }
 
     if (filters?.priceRange && filters.priceRange !== 'all') {
-      // Accepts formats like '2K-4K', '8K+', etc.
-      let min = 0, max = undefined;
+      // Accepts formats like '2K-4K', '8K+', or numeric '0-10000'
       const range = filters.priceRange.toUpperCase().replace('K', '000').replace('+', '');
       if (range.includes('-')) {
         const [minStr, maxStr] = range.split('-');
-        min = parseInt(minStr);
-        max = parseInt(maxStr);
+        const min = parseInt(minStr);
+        const max = parseInt(maxStr);
+        if (!isNaN(min)) query = query.gte('price', min);
+        if (!isNaN(max)) query = query.lte('price', max);
       } else {
-        min = parseInt(range);
-      }
-      if (min && max) {
-        query = query.gte('price', min).lte('price', max);
-      } else if (min) {
-        query = query.gte('price', min);
+        const min = parseInt(range);
+        if (!isNaN(min)) query = query.gte('price', min);
       }
     }
 

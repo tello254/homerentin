@@ -39,20 +39,13 @@ const AddRoom = ({ userPhone }: AddRoomPageProps) => {
   }, [userPhone, addSuccess]);
 
   const handleAddRoom = async (roomData: any) => {
-    setAddLoading(true);
-    try {
-      const newRoom = { ...roomData, verification: false, user_phone: userPhone };
-      await roomsApi.createRoom(newRoom);
-      setAddSuccess(true);
-      setTimeout(() => {
-        setShowAddModal(false);
-        setAddSuccess(false);
-      }, 3000);
-    } catch (err) {
-      alert('Failed to submit room. Please try again.');
-    } finally {
-      setAddLoading(false);
-    }
+    // The room is already saved by RoomEditModal (which owns validation and creation).
+    // Only show the success state here — the list refetches via the addSuccess effect.
+    setAddSuccess(true);
+    setTimeout(() => {
+      setShowAddModal(false);
+      setAddSuccess(false);
+    }, 3000);
   };
 
   return (

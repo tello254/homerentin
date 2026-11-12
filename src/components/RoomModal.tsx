@@ -64,13 +64,13 @@ const RoomModal = ({ room, isOpen, onClose }: RoomModalProps) => {
 
   const handleContact = () => {
     // Use the room's landlord phone if available, otherwise fallback
-    const phone = room.landlord_phone || '+254756600218';
+    const phone = room.landlord_phone || '+254703209997';
     window.location.href = `tel:${phone}`;
   };
 
   const handleWhatsApp = () => {
     const message = `Hi There!!, i am interested in the house id \"${room.room_id}\" please can you help me acquire it?`;
-    window.open(`https://wa.me/254703209997?text=${encodeURIComponent(message)}`, '_blank');
+    window.open(`https://wa.me/254182544098?text=${encodeURIComponent(message)}`, '_blank');
   };
 
   return (

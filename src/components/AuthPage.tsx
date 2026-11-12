@@ -720,7 +720,8 @@ const AuthPage = ({ onLogin }: AuthPageProps) => {
         </div>
           <div className="flex flex-col md:flex-row md:flex-wrap md:items-center gap-0.5 md:gap-x-6 md:gap-y-0 items-start md:items-center">
           <span>Email: <a href="mailto:support.homerentin@gmail.com" className="text-blue-600 hover:underline">support.homerentin@gmail.com</a></span>
-          <span>Phone/WhatsApp: <a href="tel:+254756600218" className="text-blue-600 hover:underline">+254 756 600 218</a></span>
+          <span>Call: <a href="tel:+254703209997" className="text-blue-600 hover:underline">0703 209 997</a></span>
+          <span>WhatsApp: <a href="https://wa.me/254182544098" target="_blank" rel="noreferrer" className="text-green-600 hover:underline">+254 182 544 098</a></span>
           <span>Telegram: <a href="https://t.me/homerentin" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">@homerentin</a></span>
           <span>LinkedIn: <span className="text-gray-600">support@homerentin.com</span></span>
           <span>Address: <span className="text-gray-600">Kisii, Kenya</span></span>

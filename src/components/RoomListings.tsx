@@ -233,12 +233,29 @@ const RoomListings = ({ filters, searchQuery = '', onBookmark, customRooms, book
     }
   };
 
-  // Show loading state
+  // Show loading state - skeleton cards for a smooth, instant-feeling load
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 px-4">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-        <p className="text-gray-600">Loading rooms...</p>
+      <div className="pb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-1 sm:px-2 md:px-4 max-w-full overflow-x-hidden">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="bg-white rounded-xl shadow-sm overflow-hidden mb-4">
+              <div className="aspect-[4/3] bg-gray-200 animate-pulse" />
+              <div className="p-4 space-y-3">
+                <div className="flex justify-between items-start gap-4">
+                  <div className="h-5 bg-gray-200 rounded animate-pulse w-2/3" />
+                  <div className="h-5 bg-gray-200 rounded animate-pulse w-20 shrink-0" />
+                </div>
+                <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2" />
+                <div className="h-4 bg-gray-200 rounded animate-pulse w-1/3" />
+                <div className="flex gap-2 pt-1">
+                  <div className="h-9 flex-1 bg-gray-200 rounded-lg animate-pulse" />
+                  <div className="h-9 flex-1 bg-gray-200 rounded-lg animate-pulse" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

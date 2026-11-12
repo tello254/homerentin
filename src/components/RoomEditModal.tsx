@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { roomsApi, storageApi, type Room } from '@/lib/supabase';
 import { Switch } from '@/components/ui/switch';
 import { Select } from '@/components/ui/select';
-import { Trash2, Plus, Upload, X, Camera, Share2 } from 'lucide-react';
+import { Trash2, Plus, Upload, X, Camera, Share2, Check } from 'lucide-react';
 import { Dialog as UIDialog, DialogContent as UIDialogContent, DialogHeader as UIDialogHeader, DialogTitle as UIDialogTitle } from '@/components/ui/dialog';
 import { useRooms } from '@/hooks/useSupabase';
 
@@ -56,6 +56,7 @@ const defaultRoom: RoomForm = {
 const RoomEditModal = ({ room, isOpen, onClose, onSave, isCreateMode, hideVerifiedToggle, userMode, userPhone }: RoomEditModalProps) => {
   const [form, setForm] = useState<RoomForm>({ ...defaultRoom, user_phone: userPhone || '' });
   const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Camera capture state
   const [cameraPreview, setCameraPreview] = useState<string | null>(null);
@@ -101,6 +102,8 @@ const RoomEditModal = ({ room, isOpen, onClose, onSave, isCreateMode, hideVerifi
   // Camera capture handler
   const handleCameraCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    // Reset the input immediately so capturing the same shot again still fires onChange
+    e.target.value = '';
     if (!file) return;
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -130,6 +133,8 @@ const RoomEditModal = ({ room, isOpen, onClose, onSave, isCreateMode, hideVerifi
   const handleRetakeCameraImage = () => {
     setCameraPreview(null);
     setCameraFile(null);
+    // Re-open the camera right away for the next shot
+    cameraInputRef.current?.click();
   };
 
   const handleImageDelete = (url: string) => {
@@ -185,6 +190,7 @@ const RoomEditModal = ({ room, isOpen, onClose, onSave, isCreateMode, hideVerifi
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (saving) return; // guard against double-tap duplicate submissions
     setError(null);
     
     // Validate required fields
@@ -201,6 +207,7 @@ const RoomEditModal = ({ room, isOpen, onClose, onSave, isCreateMode, hideVerifi
       return;
     }
     
+    setSaving(true);
     try {
       // Prepare the room data with all required fields
       const roomData = {
@@ -253,6 +260,8 @@ const RoomEditModal = ({ room, isOpen, onClose, onSave, isCreateMode, hideVerifi
     } catch (err: any) {
       console.error('Room save error:', err);
       setError(err.message || 'Failed to save room');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -466,9 +475,42 @@ const RoomEditModal = ({ room, isOpen, onClose, onSave, isCreateMode, hideVerifi
           </div>
 
           {/* Camera & Export Buttons Section */}
-          <div className="col-span-1 md:col-span-2 flex gap-2 items-center">
-            {!cameraPreview && (
-              <>
+          <div className="col-span-1 md:col-span-2 flex flex-col gap-2">
+            {cameraPreview ? (
+              /* Confirm step: show the captured photo with Add/Retake actions */
+              <div className="border rounded-xl p-3 bg-gray-50">
+                <span className="text-sm font-semibold text-gray-700">Confirm your photo</span>
+                <div className="flex flex-col sm:flex-row gap-3 items-start mt-2">
+                  <img
+                    src={cameraPreview}
+                    alt="Captured room"
+                    className="w-40 h-40 object-cover rounded-lg border bg-white"
+                  />
+                  <div className="flex sm:flex-col gap-2">
+                    <Button
+                      type="button"
+                      onClick={handleSaveCameraImage}
+                      disabled={uploading}
+                      className="bg-kisu-green hover:bg-kisu-green-dark text-white flex items-center gap-2"
+                    >
+                      <Check className="w-4 h-4" />
+                      {uploading ? 'Adding…' : 'Add Photo'}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleRetakeCameraImage}
+                      disabled={uploading}
+                      className="flex items-center gap-2"
+                    >
+                      <X className="w-4 h-4" />
+                      Retake
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="flex gap-2 items-center">
                 <Button type="button" onClick={handleOpenCamera} className="mb-2 flex items-center justify-center" disabled={uploading} title="Take Photo">
                   <Camera className="w-6 h-6" />
                 </Button>
@@ -477,7 +519,7 @@ const RoomEditModal = ({ room, isOpen, onClose, onSave, isCreateMode, hideVerifi
                     <Share2 className="w-6 h-6" />
                   </Button>
                 )}
-              </>
+              </div>
             )}
             <input
               ref={cameraInputRef}
@@ -497,7 +539,7 @@ const RoomEditModal = ({ room, isOpen, onClose, onSave, isCreateMode, hideVerifi
 
           <div className="flex justify-end gap-2 pt-4">
             <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-            <Button type="submit" className="bg-blue-600 hover:bg-blue-700">{userMode ? 'Submit' : (isCreateMode ? 'Add Room' : 'Save Changes')}</Button>
+            <Button type="submit" disabled={saving} className="bg-blue-600 hover:bg-blue-700">{saving ? 'Saving…' : (userMode ? 'Submit' : (isCreateMode ? 'Add Room' : 'Save Changes'))}</Button>
           </div>
         </form>
       </DialogContent>

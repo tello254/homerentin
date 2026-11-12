@@ -128,3 +128,30 @@
   display: flex;
   width: max-content;
 }
+
+/* Dropdown menu: drops down and grows from the trigger button, with a soft overshoot */
+@keyframes dropdown-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.9);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(2px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes dropdown-lift {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.94);
+  }
+}

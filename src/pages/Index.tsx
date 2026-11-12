@@ -106,24 +106,15 @@ const Index = ({ onLogout, onViewModeChange, user }: IndexProps) => {
     }
   };
 
-  // User add room submit handler
+  // User add room submit handler — the room is already saved by RoomEditModal,
+  // so only show the congratulatory overlay here (no second create!)
   const handleUserAddRoom = async (roomData: any) => {
-    setUserAddRoomLoading(true);
-    try {
-      // Add flags for unverified/user-submitted and user phone
-      const newRoom = { ...roomData, verified: false, submitted_by_user: true, user_phone: userPhone };
-      await import('../lib/supabase').then(({ roomsApi }) => roomsApi.createRoom(newRoom));
-      setUserAddRoomSuccess(true);
-      setTimeout(() => {
-        setShowUserAddRoom(false);
-        setUserAddRoomSuccess(false);
-        setUserPhone('');
-      }, 3500);
-    } catch (err) {
-      alert('Failed to submit room. Please try again.');
-    } finally {
-      setUserAddRoomLoading(false);
-    }
+    setUserAddRoomSuccess(true);
+    setTimeout(() => {
+      setShowUserAddRoom(false);
+      setUserAddRoomSuccess(false);
+      setUserPhone('');
+    }, 3500);
   };
 
   const renderContent = () => {
