@@ -6,6 +6,7 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="32x32" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>HomeRentin — Find Rooms & Rentals Near Campus</title>
+    <link rel="canonical" href="https://homerentin.netlify.app/" />
     <meta name="description" content="HomeRentin helps you find verified bedsitters, singles and apartments near campus in Kisii, Kenya. Compare prices, view photos and contact landlords instantly." />
     <meta name="theme-color" content="#16a34a" />
     <!-- Warm up the Supabase connection early: data + images download faster -->
@@ -20,6 +21,36 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@lovable_dev" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+    <!-- Structured data: tells Google who we are, where we are, and what we offer -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "@id": "https://homerentin.netlify.app/#organization",
+      "name": "HomeRentin",
+      "description": "Find verified bedsitters, singles and apartments near campus in Kisii, Kenya. Compare prices, view photos and contact landlords instantly.",
+      "url": "https://homerentin.netlify.app/",
+      "telephone": "+254703209997",
+      "email": "support.homerentin@gmail.com",
+      "priceRange": "KES 1000 - KES 50000",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Kisii",
+        "addressRegion": "Kisii County",
+        "addressCountry": "KE"
+      },
+      "sameAs": ["https://t.me/homerentin"]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "HomeRentin",
+      "url": "https://homerentin.netlify.app/"
+    }
+    </script>
   </head>
 
   <body>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import RoomCard from './RoomCard';
 import RoomModal from './RoomModal';
 import ImageModal from './ImageModal';
+import RoomListJsonLd from './Seo';
 import { useRooms } from '@/hooks/useSupabase';
 import type { Room } from '@/lib/supabase';
 
@@ -284,6 +285,7 @@ const RoomListings = ({ filters, searchQuery = '', onBookmark, customRooms, book
 
   return (
     <div className="pb-20">
+      <RoomListJsonLd rooms={filteredRooms} />
       {/* Search results info */}
       {searchQuery.trim() && (
         <div className="px-4 py-3 bg-blue-50 border-b">
