@@ -3,6 +3,13 @@
   command = "npm run build"
   publish = "dist"
 
+# Serve each prerendered room page directly at the no-slash URL,
+# so canonical tags don't conflict with a trailing-slash redirect
+[[redirects]]
+  from = "/room/:code"
+  to = "/room/:code/index.html"
+  status = 200
+
 # SPA fallback: every unknown path serves the app shell
 [[redirects]]
   from = "/*"

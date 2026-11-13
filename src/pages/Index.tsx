@@ -209,6 +209,8 @@ const Index = ({ onLogout, onViewModeChange, user }: IndexProps) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Keeps a stable <h1> for search engines even after React takes over from the prerendered snapshot */}
+      <h1 className="sr-only">HomeRentin — Find Rooms and Rentals Near Campus in Kisii</h1>
       <Header 
         onFilterChange={handleFilterChange} 
         onViewModeChange={onViewModeChange}
