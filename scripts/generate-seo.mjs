@@ -113,7 +113,7 @@ if (existsSync(shellPath)) {
     const image = Array.isArray(room.images) && String(room.images[0] || '').startsWith('http')
       ? room.images[0]
       : `${baseUrl}/newlogo-homerentinn.png`;
-    const snapshot = `<article>
+    const snapshot = `<article id="seo-splash">
         <h1>${escapeHtml(room.title)}</h1>
         <p>KES ${escapeHtml(price)} · ${escapeHtml(room.room_type || 'room')} · ${escapeHtml(location)}</p>
         <p>${escapeHtml(description)}</p>
@@ -175,7 +175,7 @@ if (existsSync(shellPath)) {
     const home = shell.replace(
       /<div id="root">[\s\S]*?<\/div>/,
       `<div id="root">
-      <main>
+      <main id="seo-splash">
         <h1>HomeRentin — Find Rooms and Rentals Near Campus in Kisii</h1>
         <p>Verified bedsitters, singles and apartments near campus in Kisii, Kenya. Compare prices, view photos and contact landlords instantly.</p>
         <ul>

@@ -12,7 +12,30 @@
     <meta name="theme-color" content="#16a34a" />
     <!-- Warm up the Supabase connection early: data + images download faster -->
     <link rel="preconnect" href="https://cmeqhzuagqjqamgmbutx.supabase.co" crossorigin />
-    <style>html { background: #f9fafb; }</style>
+    <style>
+      html { background: #f9fafb; }
+      /* Pre-hydration splash: this snapshot shows for the ~0.5s before React
+         mounts, so keep it minimal but on-brand instead of raw white text */
+      #seo-splash {
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        max-width: 560px;
+        margin: 0 auto;
+        padding: 56px 20px;
+        color: #111827;
+      }
+      #seo-splash h1 { font-size: 26px; line-height: 1.25; color: #16a34a; margin: 0 0 12px; }
+      #seo-splash p { color: #4b5563; font-size: 15px; line-height: 1.6; margin: 0 0 10px; }
+      #seo-splash ul { list-style: none; margin: 20px 0 0; padding: 0; }
+      #seo-splash li {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 14px 16px;
+        margin-bottom: 10px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      }
+      #seo-splash a { color: #16a34a; font-weight: 600; text-decoration: none; }
+    </style>
 
     <meta property="og:title" content="HomeRentin — Find Rooms & Rentals Near Campus" />
     <meta property="og:description" content="Find verified rooms and rentals near campus in Kisii, Kenya. Compare prices, view photos and contact landlords instantly." />
@@ -60,7 +83,7 @@
 
   <body>
     <div id="root">
-      <main>
+      <main id="seo-splash">
         <h1>HomeRentin — Find Rooms and Rentals Near Campus in Kisii</h1>
         <p>HomeRentin helps you find verified bedsitters, singles and apartments near campus in Kisii, Kenya. Compare prices, view photos and contact landlords instantly.</p>
       </main>
