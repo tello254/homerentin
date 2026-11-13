@@ -1,18 +1,22 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { X, ChevronLeft, ChevronRight, MapPin, Phone, MessageCircle, Star, Clock, Ruler, Wifi, Droplets, Shield, Home } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import type { Room } from '@/lib/supabase';
 
 interface RoomModalProps {
   room: Room | null;
   isOpen: boolean;
   onClose: () => void;
+  isAuthenticated?: boolean;
 }
 
-const RoomModal = ({ room, isOpen, onClose }: RoomModalProps) => {
+const RoomModal = ({ room, isOpen, onClose, isAuthenticated = false }: RoomModalProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageLoading, setImageLoading] = useState(false);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 
   if (!room) return null;
 
@@ -63,18 +67,50 @@ const RoomModal = ({ room, isOpen, onClose }: RoomModalProps) => {
   };
 
   const handleContact = () => {
+    // Guests must sign in before calling
+    if (!isAuthenticated) {
+      setShowAuthPrompt(true);
+      return;
+    }
     // Use the room's landlord phone if available, otherwise fallback
     const phone = room.landlord_phone || '+254703209997';
     window.location.href = `tel:${phone}`;
   };
 
   const handleWhatsApp = () => {
+    // Guests must sign in before messaging on WhatsApp
+    if (!isAuthenticated) {
+      setShowAuthPrompt(true);
+      return;
+    }
     const message = `Hi There!!, i am interested in the house id \"${room.room_id}\" please can you help me acquire it?`;
     window.open(`https://wa.me/254182544098?text=${encodeURIComponent(message)}`, '_blank');
   };
 
+  const authPrompt = (
+    <Dialog open={showAuthPrompt} onOpenChange={setShowAuthPrompt}>
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <DialogTitle className="text-center text-xl">Sign in to contact landlords</DialogTitle>
+        </DialogHeader>
+        <p className="text-sm text-gray-600 text-center">
+          Browsing is free! Create a free account or log in to call or WhatsApp landlords about this room.
+        </p>
+        <div className="flex gap-2 mt-2">
+          <Button asChild variant="outline" className="flex-1">
+            <Link to="/login" onClick={() => setShowAuthPrompt(false)}>Log In</Link>
+          </Button>
+          <Button asChild className="flex-1 bg-kisu-green hover:bg-kisu-green-dark text-white">
+            <Link to="/login" onClick={() => setShowAuthPrompt(false)}>Sign Up</Link>
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md w-full p-0 overflow-hidden max-h-[90vh] overflow-y-auto">
         <DialogHeader className="sr-only">
           <DialogTitle>{room.title}</DialogTitle>
@@ -297,6 +333,8 @@ const RoomModal = ({ room, isOpen, onClose }: RoomModalProps) => {
         </div>
       </DialogContent>
     </Dialog>
+      {authPrompt}
+    </>
   );
 };
 

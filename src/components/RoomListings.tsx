@@ -17,6 +17,7 @@ interface RoomListingsProps {
   customRooms?: Room[];
   bookmarkedRooms?: Room[];
   showBookmarkButton?: boolean;
+  isAuthenticated?: boolean;
 }
 
 // Fallback placeholder rooms when database is not connected or empty
@@ -168,7 +169,7 @@ const placeholderRooms: Room[] = [
   }
 ];
 
-const RoomListings = ({ filters, searchQuery = '', onBookmark, customRooms, bookmarkedRooms, showBookmarkButton }: RoomListingsProps) => {
+const RoomListings = ({ filters, searchQuery = '', onBookmark, customRooms, bookmarkedRooms, showBookmarkButton, isAuthenticated = false }: RoomListingsProps) => {
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
@@ -304,6 +305,7 @@ const RoomListings = ({ filters, searchQuery = '', onBookmark, customRooms, book
             onImageClick={handleImageClick}
             isBookmarked={bookmarkedRooms?.some(bookmarkedRoom => bookmarkedRoom.id === room.id)}
             showBookmarkButton={showBookmarkButton}
+            isAuthenticated={isAuthenticated}
           />
         ))}
       </div>
@@ -311,6 +313,7 @@ const RoomListings = ({ filters, searchQuery = '', onBookmark, customRooms, book
         room={selectedRoom}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
+        isAuthenticated={isAuthenticated}
       />
       <ImageModal
         room={selectedRoom}

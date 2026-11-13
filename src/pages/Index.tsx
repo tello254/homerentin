@@ -142,14 +142,14 @@ const Index = ({ onLogout, onViewModeChange, user }: IndexProps) => {
         return (
           <>
             <NotificationBanner />
-            <RoomListings filters={filters} searchQuery={searchQuery} onBookmark={handleBookmark} bookmarkedRooms={bookmarkedRooms} />
+            <RoomListings filters={filters} searchQuery={searchQuery} onBookmark={handleBookmark} bookmarkedRooms={bookmarkedRooms} isAuthenticated={!!user} />
           </>
         );
       case 'search':
         return (
           <>
             <NotificationBanner />
-            <RoomListings filters={filters} searchQuery={searchQuery} onBookmark={handleBookmark} bookmarkedRooms={bookmarkedRooms} />
+            <RoomListings filters={filters} searchQuery={searchQuery} onBookmark={handleBookmark} bookmarkedRooms={bookmarkedRooms} isAuthenticated={!!user} />
           </>
         );
       case 'bookmarks':
@@ -176,6 +176,7 @@ const Index = ({ onLogout, onViewModeChange, user }: IndexProps) => {
                     customRooms={bookmarkedRooms}
                     bookmarkedRooms={bookmarkedRooms}
                     showBookmarkButton={false}
+                    isAuthenticated={!!user}
                   />
                 </div>
               )}
@@ -201,7 +202,7 @@ const Index = ({ onLogout, onViewModeChange, user }: IndexProps) => {
         return (
           <>
             <NotificationBanner />
-            <RoomListings filters={filters} searchQuery={searchQuery} onBookmark={handleBookmark} bookmarkedRooms={bookmarkedRooms} />
+            <RoomListings filters={filters} searchQuery={searchQuery} onBookmark={handleBookmark} bookmarkedRooms={bookmarkedRooms} isAuthenticated={!!user} />
           </>
         );
     }

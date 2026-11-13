@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Phone, MessageCircle, Bookmark, Info, Shield } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import type { Room } from '@/lib/supabase';
 
 interface RoomCardProps {
@@ -12,9 +14,11 @@ interface RoomCardProps {
   isBookmarked?: boolean;
   showBookmarkButton?: boolean;
   showVerificationStatus?: boolean;
+  isAuthenticated?: boolean;
 }
 
-const RoomCard = ({ room, onClick, onBookmark, onImageClick, isBookmarked, showBookmarkButton = true, showVerificationStatus = false }: RoomCardProps) => {
+const RoomCard = ({ room, onClick, onBookmark, onImageClick, isBookmarked, showBookmarkButton = true, showVerificationStatus = false, isAuthenticated = false }: RoomCardProps) => {
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
 
   const getStatusColor = (status: string) => {
@@ -51,12 +55,22 @@ const RoomCard = ({ room, onClick, onBookmark, onImageClick, isBookmarked, showB
 
   const handleContact = (e: React.MouseEvent) => {
     e.stopPropagation();
+    // Guests must sign in before calling
+    if (!isAuthenticated) {
+      setShowAuthPrompt(true);
+      return;
+    }
     // Make phone call to the specified number
     window.location.href = 'tel:+254703209997';
   };
 
   const handleWhatsApp = (e: React.MouseEvent) => {
     e.stopPropagation();
+    // Guests must sign in before messaging on WhatsApp
+    if (!isAuthenticated) {
+      setShowAuthPrompt(true);
+      return;
+    }
     const message = `Hi There!!, i am interested in the house id \"${room.room_id}\" please can you help me acquire it?`;
     window.open(`https://wa.me/254182544098?text=${encodeURIComponent(message)}`, '_blank');
   };
@@ -253,6 +267,26 @@ const RoomCard = ({ room, onClick, onBookmark, onImageClick, isBookmarked, showB
           </button>
         </div>
       </div>
+
+      {/* Sign-in prompt shown when guests try to contact a landlord */}
+      <Dialog open={showAuthPrompt} onOpenChange={setShowAuthPrompt}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-center text-xl">Sign in to contact landlords</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-gray-600 text-center">
+            Browsing is free! Create a free account or log in to call or WhatsApp landlords about this room.
+          </p>
+          <div className="flex gap-2 mt-2">
+            <Button asChild variant="outline" className="flex-1">
+              <Link to="/login" onClick={() => setShowAuthPrompt(false)}>Log In</Link>
+            </Button>
+            <Button asChild className="flex-1 bg-kisu-green hover:bg-kisu-green-dark text-white">
+              <Link to="/login" onClick={() => setShowAuthPrompt(false)}>Sign Up</Link>
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

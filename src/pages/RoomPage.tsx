@@ -3,12 +3,17 @@ import { Link, useParams } from 'react-router-dom';
 import { MapPin, Phone, MessageCircle } from 'lucide-react';
 import { roomsApi, type Room } from '@/lib/supabase';
 import { usePageMeta } from '@/components/Seo';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 const RoomPage = () => {
   const { roomId = '' } = useParams();
   const [room, setRoom] = useState<Room | null>(null);
   const [loading, setLoading] = useState(true);
   const [missing, setMissing] = useState(false);
+  // Guests can browse the listing, but must sign in to contact the landlord
+  const [isAuthenticated] = useState(() => !!localStorage.getItem('currentUser'));
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -84,12 +89,20 @@ const RoomPage = () => {
   }, [room, description]);
 
   const callLandlord = () => {
+    if (!isAuthenticated) {
+      setShowAuthPrompt(true);
+      return;
+    }
     const phone = room?.landlord_phone || '+254703209997';
     window.location.href = `tel:${phone}`;
   };
 
   const openWhatsApp = () => {
     if (!room) return;
+    if (!isAuthenticated) {
+      setShowAuthPrompt(true);
+      return;
+    }
     const message = `Hi There!!, i am interested in the house id "${room.room_id}" please can you help me acquire it?`;
     window.open(`https://wa.me/254182544098?text=${encodeURIComponent(message)}`, '_blank');
   };
@@ -154,6 +167,25 @@ const RoomPage = () => {
           </article>
         )}
       </main>
+      {/* Sign-in prompt shown when guests try to contact a landlord */}
+      <Dialog open={showAuthPrompt} onOpenChange={setShowAuthPrompt}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-center text-xl">Sign in to contact landlords</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-gray-600 text-center">
+            Browsing is free! Create a free account or log in to call or WhatsApp landlords about this room.
+          </p>
+          <div className="flex gap-2 mt-2">
+            <Button asChild variant="outline" className="flex-1">
+              <Link to="/login" onClick={() => setShowAuthPrompt(false)}>Log In</Link>
+            </Button>
+            <Button asChild className="flex-1 bg-kisu-green hover:bg-kisu-green-dark text-white">
+              <Link to="/login" onClick={() => setShowAuthPrompt(false)}>Sign Up</Link>
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
