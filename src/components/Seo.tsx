@@ -64,7 +64,7 @@ export const SITE_ORIGIN = 'https://homerentin.netlify.app';
 export const DEFAULT_TITLE = 'HomeRentin — Find Rooms & Rentals Near Campus';
 export const DEFAULT_DESCRIPTION =
   'HomeRentin helps you find verified bedsitters, singles and apartments near campus in Kisii, Kenya. Compare prices, view photos and contact landlords instantly.';
-export const DEFAULT_IMAGE = `${SITE_ORIGIN}/newlogo-homerentinn.png`;
+export const DEFAULT_IMAGE = `${SITE_ORIGIN}/og-banner.png`;
 
 function setMeta(selector: string, attr: 'name' | 'property', key: string, content: string) {
   let el = document.head.querySelector(selector) as HTMLMetaElement | null;

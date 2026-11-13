@@ -112,7 +112,7 @@ if (existsSync(shellPath)) {
     const pageUrl = `${baseUrl}/room/${code}`;
     const image = Array.isArray(room.images) && String(room.images[0] || '').startsWith('http')
       ? room.images[0]
-      : `${baseUrl}/newlogo-homerentinn.png`;
+      : `${baseUrl}/og-banner.png`;
     const snapshot = `<article id="seo-splash">
         <h1>${escapeHtml(room.title)}</h1>
         <p>KES ${escapeHtml(price)} · ${escapeHtml(room.room_type || 'room')} · ${escapeHtml(location)}</p>
