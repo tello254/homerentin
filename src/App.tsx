@@ -11,6 +11,8 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const AuthPage = lazy(() => import("./components/AuthPage"));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const RoomPage = lazy(() => import('./pages/RoomPage'));
+const LandingPage = lazy(() => import('./pages/LandingPage'));
+import { LANDING_PAGES } from './lib/landingPages';
 
 // Shown while a lazily-loaded page chunk downloads
 const PageLoader = () => (
@@ -87,6 +89,10 @@ const App = () => {
               }
             />
             <Route path="/room/:roomId" element={<RoomPage />} />
+            {/* Keyword landing pages, e.g. /bedsitters-for-rent-in-kisii */}
+            {LANDING_PAGES.map((page) => (
+              <Route key={page.slug} path={`/${page.slug}`} element={<LandingPage slug={page.slug} />} />
+            ))}
             <Route
               path="/admin"
               element={

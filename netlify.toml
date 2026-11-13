@@ -10,6 +10,32 @@
   to = "/room/:code/index.html"
   status = 200
 
+# Same for the prerendered keyword landing pages
+[[redirects]]
+  from = "/houses-for-rent-in-kisii"
+  to = "/houses-for-rent-in-kisii/index.html"
+  status = 200
+[[redirects]]
+  from = "/bedsitters-for-rent-in-kisii"
+  to = "/bedsitters-for-rent-in-kisii/index.html"
+  status = 200
+[[redirects]]
+  from = "/single-rooms-for-rent-in-kisii"
+  to = "/single-rooms-for-rent-in-kisii/index.html"
+  status = 200
+[[redirects]]
+  from = "/apartments-for-rent-in-kisii"
+  to = "/apartments-for-rent-in-kisii/index.html"
+  status = 200
+[[redirects]]
+  from = "/one-bedroom-houses-in-kisii"
+  to = "/one-bedroom-houses-in-kisii/index.html"
+  status = 200
+[[redirects]]
+  from = "/two-bedroom-houses-in-kisii"
+  to = "/two-bedroom-houses-in-kisii/index.html"
+  status = 200
+
 # SPA fallback: every unknown path serves the app shell
 [[redirects]]
   from = "/*"
