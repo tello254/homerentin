@@ -4,6 +4,7 @@ import { MapPin, Phone, MessageCircle, Bookmark, Info, Shield } from 'lucide-rea
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import RoomImage from '@/components/RoomImage';
 import type { Room } from '@/lib/supabase';
 
 interface RoomCardProps {
@@ -19,8 +20,6 @@ interface RoomCardProps {
 
 const RoomCard = ({ room, onClick, onBookmark, onImageClick, isBookmarked, showBookmarkButton = true, showVerificationStatus = false, isAuthenticated = false }: RoomCardProps) => {
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'vacant':
@@ -118,22 +117,12 @@ const RoomCard = ({ room, onClick, onBookmark, onImageClick, isBookmarked, showB
       className="bg-white rounded-xl shadow-sm hover:shadow-md overflow-hidden mb-4 w-full cursor-pointer transition-shadow [content-visibility:auto] [contain-intrinsic-size:auto_380px]"
     >
       <div className="relative aspect-[4/3] bg-gray-100">
-        {/* Skeleton shimmer shown while the image loads */}
-        {!imageLoaded && (
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse" aria-hidden="true" />
-        )}
-        <img
-          src={room.images && room.images.length > 0 ? room.images[0] : '/placeholder.svg'}
+        <RoomImage
+          src={room.images && room.images.length > 0 ? room.images[0] : null}
           alt={room.title}
-          loading="lazy"
-          decoding="async"
-          onLoad={() => setImageLoaded(true)}
-          className={`w-full h-full object-cover cursor-pointer transition-opacity duration-500 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+          containerClassName="absolute inset-0"
+          imgClassName="cursor-pointer"
           onClick={handleImageClick}
-          onError={(e) => {
-            e.currentTarget.src = '/placeholder.svg';
-            setImageLoaded(true);
-          }}
         />
         {/* Multiple Diagonal Watermarks */}
         <div className="pointer-events-none select-none absolute inset-0 w-full h-full" style={{ zIndex: 2 }}>

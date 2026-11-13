@@ -4,6 +4,7 @@ import { MapPin, BadgeCheck } from 'lucide-react';
 import { roomsApi, type Room } from '@/lib/supabase';
 import { usePageMeta } from '@/components/Seo';
 import RoomListJsonLd from '@/components/Seo';
+import RoomImage from '@/components/RoomImage';
 import { LANDING_PAGES, filterRoomsForLanding } from '@/lib/landingPages';
 
 /**
@@ -81,15 +82,13 @@ const LandingPage = ({ slug: slugProp }: { slug?: string }) => {
                   to={`/room/${encodeURIComponent(room.room_id)}`}
                   className="group bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-md transition-shadow"
                 >
-                  <div className="aspect-[4/3] bg-gray-100 overflow-hidden">
-                    {room.images?.[0] ? (
-                      <img
-                        src={room.images[0]}
-                        alt={room.title}
-                        loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : null}
+                  <div className="aspect-[4/3]">
+                    <RoomImage
+                      src={room.images?.[0] || null}
+                      alt={room.title}
+                      containerClassName="w-full h-full"
+                      imgClassName="group-hover:scale-105"
+                    />
                   </div>
                   <div className="p-4">
                     <div className="flex items-start justify-between gap-2">
