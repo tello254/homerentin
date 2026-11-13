@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import NotificationBanner from '../components/NotificationBanner';
 import RoomListings from '../components/RoomListings';
@@ -7,6 +8,7 @@ import AccountPage from '../components/AccountPage';
 import { Search, X } from 'lucide-react';
 import { Input } from '../components/ui/input';
 import type { Room } from '@/lib/supabase';
+import { DEFAULT_DESCRIPTION, DEFAULT_TITLE, usePageMeta } from '@/components/Seo';
 import RoomEditModal from '../components/RoomEditModal';
 import { Dialog as UIDialog, DialogContent as UIDialogContent, DialogHeader as UIDialogHeader, DialogTitle as UIDialogTitle } from '../components/ui/dialog';
 import { Button } from '../components/ui/button';
@@ -23,6 +25,18 @@ function getAccountPhone() {
   }
 }
 
+function SignInPrompt({ title }: { title: string }) {
+  return (
+    <div className="px-4 py-16 text-center">
+      <h2 className="text-xl font-bold text-gray-900 mb-2">{title}</h2>
+      <p className="text-gray-600 mb-4">You can browse rooms without an account. Sign in to save listings or add a property.</p>
+      <Link to="/login" className="inline-block bg-kisu-green text-white px-4 py-2 rounded-lg font-medium">
+        Sign in
+      </Link>
+    </div>
+  );
+}
+
 interface IndexProps {
   onLogout: () => void;
   onViewModeChange: (mode: 'admin' | 'user') => void;
@@ -30,6 +44,11 @@ interface IndexProps {
 }
 
 const Index = ({ onLogout, onViewModeChange, user }: IndexProps) => {
+  usePageMeta({
+    title: DEFAULT_TITLE,
+    description: DEFAULT_DESCRIPTION,
+    path: '/',
+  });
   const [filters, setFilters] = useState({
     roomType: 'all',
     area: 'all',
@@ -164,6 +183,9 @@ const Index = ({ onLogout, onViewModeChange, user }: IndexProps) => {
           </>
         );
       case 'account':
+        if (!user) {
+          return <SignInPrompt title="Sign in to manage your account" />;
+        }
         return (
           <>
             <NotificationBanner />
@@ -171,6 +193,9 @@ const Index = ({ onLogout, onViewModeChange, user }: IndexProps) => {
           </>
         );
       case 'add-rooms':
+        if (!user) {
+          return <SignInPrompt title="Sign in to list a room" />;
+        }
         return <AddRoom userPhone={userPhone} />;
       default:
         return (

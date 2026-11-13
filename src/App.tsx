@@ -10,6 +10,7 @@ const Index = lazy(() => import("./pages/Index"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const AuthPage = lazy(() => import("./components/AuthPage"));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const RoomPage = lazy(() => import('./pages/RoomPage'));
 
 // Shown while a lazily-loaded page chunk downloads
 const PageLoader = () => (
@@ -65,20 +66,27 @@ const App = () => {
         <BrowserRouter>
           <Suspense fallback={<PageLoader />}>
           <Routes>
-            <Route 
-              path="/" 
+            <Route
+              path="/"
+              element={
+                isAuthenticated && viewMode === 'admin' ? (
+                  <Navigate to="/admin" replace />
+                ) : (
+                  <Index onLogout={handleLogout} onViewModeChange={handleViewModeChange} user={user} />
+                )
+              }
+            />
+            <Route
+              path="/login"
               element={
                 isAuthenticated ? (
-                  viewMode === 'admin' ? (
-                    <Navigate to="/admin" replace />
-                  ) : (
-                    <Index onLogout={handleLogout} onViewModeChange={handleViewModeChange} user={user} />
-                  )
+                  <Navigate to={viewMode === 'admin' ? '/admin' : '/'} replace />
                 ) : (
                   <AuthPage onLogin={handleLogin} />
                 )
-              } 
+              }
             />
+            <Route path="/room/:roomId" element={<RoomPage />} />
             <Route
               path="/admin"
               element={

@@ -31,6 +31,9 @@ const RoomListJsonLd = ({ rooms, maxItems = 30 }: RoomListJsonLdProps) => {
             addressLocality: room.location || 'Kisii',
             addressCountry: 'KE',
           },
+          url: room.room_id
+            ? `https://homerentin.netlify.app/room/${encodeURIComponent(room.room_id)}`
+            : undefined,
           offers: {
             '@type': 'Offer',
             price: room.price,
@@ -56,5 +59,52 @@ const RoomListJsonLd = ({ rooms, maxItems = 30 }: RoomListJsonLdProps) => {
 
   return null;
 };
+
+export const SITE_ORIGIN = 'https://homerentin.netlify.app';
+export const DEFAULT_TITLE = 'HomeRentin — Find Rooms & Rentals Near Campus';
+export const DEFAULT_DESCRIPTION =
+  'HomeRentin helps you find verified bedsitters, singles and apartments near campus in Kisii, Kenya. Compare prices, view photos and contact landlords instantly.';
+export const DEFAULT_IMAGE = `${SITE_ORIGIN}/newlogo-homerentinn.png`;
+
+function setMeta(selector: string, attr: 'name' | 'property', key: string, content: string) {
+  let el = document.head.querySelector(selector) as HTMLMetaElement | null;
+  if (!el) {
+    el = document.createElement('meta');
+    el.setAttribute(attr, key);
+    document.head.appendChild(el);
+  }
+  el.setAttribute('content', content);
+}
+
+/** Updates the document title, description, canonical URL, and social tags. */
+export function usePageMeta(opts: {
+  title: string;
+  description: string;
+  path: string;
+  image?: string;
+}) {
+  const { title, description, path, image = DEFAULT_IMAGE } = opts;
+
+  useEffect(() => {
+    const url = `${SITE_ORIGIN}${path}`;
+    document.title = title;
+    setMeta('meta[name="description"]', 'name', 'description', description);
+    setMeta('meta[property="og:title"]', 'property', 'og:title', title);
+    setMeta('meta[property="og:description"]', 'property', 'og:description', description);
+    setMeta('meta[property="og:url"]', 'property', 'og:url', url);
+    setMeta('meta[property="og:image"]', 'property', 'og:image', image);
+    setMeta('meta[name="twitter:title"]', 'name', 'twitter:title', title);
+    setMeta('meta[name="twitter:description"]', 'name', 'twitter:description', description);
+    setMeta('meta[name="twitter:image"]', 'name', 'twitter:image', image);
+
+    let canonical = document.head.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+    if (!canonical) {
+      canonical = document.createElement('link');
+      canonical.rel = 'canonical';
+      document.head.appendChild(canonical);
+    }
+    canonical.href = url;
+  }, [title, description, path, image]);
+}
 
 export default RoomListJsonLd;

@@ -1,4 +1,4 @@
-import { Menu, ChevronDown, Settings, X, LogOut, Mail, FileText, ShieldCheck, MessageCircle, Send, Linkedin, MapPin, Phone } from 'lucide-react';
+import { Menu, ChevronDown, Settings, X, LogOut, LogIn, Mail, FileText, ShieldCheck, MessageCircle, Send, Linkedin, MapPin, Phone } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
@@ -208,13 +208,23 @@ If you have questions about this Privacy Policy, please contact us through the c
             
             {/* Logout Button - at the bottom of sidebar */}
             <div className="border-t p-4">
-              <button
-                onClick={() => setShowLogoutConfirm(true)}
-                className="w-full py-2 px-3 flex items-center justify-center gap-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium"
-              >
-                <LogOut className="w-4 h-4" />
-                Log Out
-              </button>
+              {user ? (
+                <button
+                  onClick={() => setShowLogoutConfirm(true)}
+                  className="w-full py-2 px-3 flex items-center justify-center gap-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Log Out
+                </button>
+              ) : (
+                <button
+                  onClick={() => navigate('/login')}
+                  className="w-full py-2 px-3 flex items-center justify-center gap-2 text-kisu-green hover:bg-green-50 rounded-lg transition-colors font-medium"
+                >
+                  <LogIn className="w-4 h-4" />
+                  Sign in
+                </button>
+              )}
             </div>
           </SheetContent>
         </Sheet>

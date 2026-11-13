@@ -129,6 +129,18 @@ export const roomsApi = {
     return { data, error }
   },
 
+  // Public listing URL uses the human room code (for example "00200")
+  async getRoomByCode(roomId: string) {
+    const { data, error } = await supabase
+      .from('rooms')
+      .select('*')
+      .eq('room_id', roomId)
+      .eq('verification', true)
+      .limit(1)
+      .maybeSingle()
+    return { data, error }
+  },
+
   // Create a new room (admin only)
   async createRoom(room: Omit<Room, 'id' | 'created_at' | 'updated_at'>) {
     console.log('Creating room with data:', room);

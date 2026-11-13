@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { MapPin, Phone, MessageCircle, Bookmark, Info, Shield } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import type { Room } from '@/lib/supabase';
@@ -168,7 +169,19 @@ const RoomCard = ({ room, onClick, onBookmark, onImageClick, isBookmarked, showB
       <div className="p-4">
         {/* First Row: Title and Price */}
         <div className="flex justify-between items-start mb-3">
-          <h3 className="font-semibold text-lg flex-1 mr-2">{room.title}</h3>
+          <h3 className="font-semibold text-lg flex-1 mr-2">
+            {room.room_id ? (
+              <Link
+                to={`/room/${encodeURIComponent(room.room_id)}`}
+                className="hover:underline"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {room.title}
+              </Link>
+            ) : (
+              room.title
+            )}
+          </h3>
           <div className="flex flex-col items-end">
             <span className="text-kisu-green font-bold text-lg">KES {room.price.toLocaleString()}</span>
             {room.deposit !== undefined && room.deposit !== null && (
