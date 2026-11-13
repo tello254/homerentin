@@ -17,6 +17,7 @@
       /* Pre-hydration splash: this snapshot shows for the ~0.5s before React
          mounts, so keep it minimal but on-brand instead of raw white text */
       #seo-splash {
+        opacity: 0;
         font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         max-width: 560px;
         margin: 0 auto;
@@ -36,6 +37,8 @@
       }
       #seo-splash a { color: #16a34a; font-weight: 600; text-decoration: none; }
     </style>
+    <!-- Without JavaScript the app never mounts, so reveal the splash for those visitors -->
+    <noscript><style>#seo-splash { opacity: 1; }</style></noscript>
 
     <meta property="og:title" content="HomeRentin — Find Rooms & Rentals Near Campus" />
     <meta property="og:description" content="Find verified rooms and rentals near campus in Kisii, Kenya. Compare prices, view photos and contact landlords instantly." />
